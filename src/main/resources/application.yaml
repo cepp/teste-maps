@@ -1,0 +1,42 @@
+---
+server:
+  servlet:
+    contextPath: /financas
+  port: 8088
+app:
+  build:
+    version: '@project.version@'
+
+# logging
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+  level:
+    root: INFO
+    br:
+      com:
+        cepp:
+          maps:
+            financas: DEBUG
+
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    username: sa
+    password: teste@123
+    url: jdbc:h2:mem:mainDB
+    initializationMode: always
+  jpa:
+    hibernate:
+      ddlAuto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    showSql: true
+
+  jackson:
+    deserialization:
+      failOnUnknownProperties: true
+  profiles:
+    active: dev
