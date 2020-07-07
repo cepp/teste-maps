@@ -1,8 +1,7 @@
 package br.com.cepp.maps.financas.resource;
 
+import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
-import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -27,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ContaCorrenteResourceTest {
+class ContaCorrenteResourceTest extends AbstractDataTest {
     private static final String URI_CHAVE_V1 = "/contacorrente/";
     public static final String UTF_8 = "UTF-8";
     public static final String END_POINT_CREDITO = "credito";
@@ -49,7 +46,7 @@ class ContaCorrenteResourceTest {
 
     @Test
     void credito() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = this.getLancamentoRequestMock();
+        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -64,7 +61,7 @@ class ContaCorrenteResourceTest {
 
     @Test
     void creditoValidarData() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = this.getLancamentoRequestMock();
+        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setData(null);
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
@@ -114,7 +111,7 @@ class ContaCorrenteResourceTest {
 
     @Test
     void creditoValidarValor() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = this.getLancamentoRequestMock();
+        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setValor(null);
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
@@ -164,7 +161,7 @@ class ContaCorrenteResourceTest {
 
     @Test
     void creditoValidarDescricao() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = this.getLancamentoRequestMock();
+        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setDescricao(null);
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
@@ -191,7 +188,7 @@ class ContaCorrenteResourceTest {
 
     @Test
     void debito() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = this.getLancamentoRequestMock();
+        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat("debito"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -203,13 +200,5 @@ class ContaCorrenteResourceTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
-    }
-
-    private LancamentoRequestTestDTO getLancamentoRequestMock() {
-        LancamentoRequestTestDTO lancamento = new LancamentoRequestTestDTO();
-        lancamento.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
-        lancamento.setDescricao(RandomStringUtils.random(10, true, false));
-        lancamento.setValor(RandomStringUtils.random(5, false, true));
-        return lancamento;
     }
 }
