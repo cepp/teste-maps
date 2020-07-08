@@ -92,9 +92,19 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(ContaNaoEncontradaException.class)
-    public ResponseEntity<Object> handleContaNaoEncontradaException(ContaNaoEncontradaException ex) {
+    @ExceptionHandler({ContaNaoEncontradaException.class, AtivoNaoEncontradoException.class})
+    public ResponseEntity<Object> handleObjetoNaoEncontradoException(ObjetoNaoEncontradoException ex) {
         return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+    }
+
+    @ExceptionHandler(AtivoJaExisteException.class)
+    public ResponseEntity<Object> handleAtivoJaExisteException(AtivoJaExisteException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ConversaoParaJsonException.class)
+    public ResponseEntity<Object> handleConversaoParaJsonException(ConversaoParaJsonException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
