@@ -3,6 +3,8 @@ package br.com.cepp.maps.financas.service;
 import br.com.cepp.maps.financas.model.ContaCorrente;
 import br.com.cepp.maps.financas.model.dominio.TipoNatureza;
 import br.com.cepp.maps.financas.repository.ContaCorrenteRepository;
+import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
+import br.com.cepp.maps.financas.resource.handler.ContaNaoEncontradaException;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,21 +16,23 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.math.RoundingMode;
 
 @Log4j2
 @Service
 @Validated
 public class ContaCorrenteService {
     private final ContaCorrenteRepository repository;
+    private final LancamentoService lancamentoService;
 
     @Autowired
-    public ContaCorrenteService(ContaCorrenteRepository repository) {
+    public ContaCorrenteService(ContaCorrenteRepository repository, LancamentoService lancamentoService) {
         this.repository = repository;
+        this.lancamentoService = lancamentoService;
     }
 
-    public Optional<ContaCorrente> buscarContaCorrentePorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        return this.repository.findByCodigoUsuario(codigoUsuario);
+    public ContaCorrente buscarContaCorrentePorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
+        return this.repository.findByCodigoUsuario(codigoUsuario).orElseThrow(() -> new ContaNaoEncontradaException(codigoUsuario));
     }
 
     @Transactional
@@ -45,7 +49,23 @@ public class ContaCorrenteService {
 
     @Transactional
     public ContaCorrente incluirContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO, codigoUsuario);
+        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN), codigoUsuario);
         return this.repository.save(contaCorrente);
+    }
+
+    @Transactional
+    public void incluirCredito(@Valid @NotNull(message = "Objeto request é obrigatório") final LancamentoRequestDTO requestDTO,
+                               @NotEmpty(message = "Usuário é obrigatório") final String codigoUsuario) {
+        final ContaCorrente contaCorrente = this.buscarContaCorrentePorCodigoUsuario(codigoUsuario);
+        final ContaCorrente contaCorrenteSaldoAtualizado = this.atualizarSaldo(contaCorrente, requestDTO.getValor(), TipoNatureza.CREDITO);
+        this.lancamentoService.incluirCredito(requestDTO, contaCorrenteSaldoAtualizado);
+    }
+
+    @Transactional
+    public void incluirDebito(@Valid @NotNull(message = "Objeto request é obrigatório") final LancamentoRequestDTO requestDTO,
+                              @NotEmpty(message = "Usuário é obrigatório") final String codigoUsuario) {
+        final ContaCorrente contaCorrente = this.buscarContaCorrentePorCodigoUsuario(codigoUsuario);
+        final ContaCorrente contaCorrenteSaldoAtualizado = this.atualizarSaldo(contaCorrente, requestDTO.getValor(), TipoNatureza.DEBITO);
+        this.lancamentoService.incluirDebito(requestDTO, contaCorrenteSaldoAtualizado);
     }
 }

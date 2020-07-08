@@ -2,6 +2,7 @@ package br.com.cepp.maps.financas.resource;
 
 import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
+import static br.com.cepp.maps.financas.config.AppDataConfig.CODIGO_USUARIO_GLOBAL;
+import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +54,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -66,6 +71,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -78,6 +84,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -89,6 +96,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -101,6 +109,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -116,6 +125,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -128,6 +138,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -139,6 +150,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -151,6 +163,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -166,6 +179,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -178,6 +192,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(lancamentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -188,17 +203,71 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
     @Test
     void debito() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
+        final LancamentoRequestTestDTO lancamentoRequestCredito = super.getLancamentoRequestRestMock();
+        lancamentoRequestCredito.setValor(RandomStringUtils.random(4, false, true));
+
+        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(lancamentoRequestCredito.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
+                .andReturn());
+
+        final LancamentoRequestTestDTO lancamentoRequestDebito = super.getLancamentoRequestRestMock();
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat("debito"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(lancamentoRequestTestDTO.toJson())
+                .content(lancamentoRequestDebito.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(content().encoding(UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
+                .andReturn());
+    }
+
+    @Test
+    void consulta() {
+        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_CHAVE_V1.concat("/").concat(CODIGO_USUARIO_GLOBAL))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(content().encoding(UTF_8))
+                .andExpect(status().isOk())
+                .andReturn());
+    }
+
+    @Test
+    void consultaNotFound() {
+        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_CHAVE_V1)
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(content().encoding(UTF_8))
+                .andExpect(status().isNotFound())
+                .andReturn());
+    }
+
+    @Test
+    void consultaNoContent() {
+        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_CHAVE_V1.concat("/hdjfhjdhfj"))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(content().encoding(UTF_8))
+                .andExpect(status().isNoContent())
                 .andReturn());
     }
 }
