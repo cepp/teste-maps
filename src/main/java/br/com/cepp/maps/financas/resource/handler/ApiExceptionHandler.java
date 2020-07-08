@@ -88,8 +88,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(SaldoInsuficienteException.class)
-    public ResponseEntity<Object> handleValidationException(SaldoInsuficienteException ex) {
+    public ResponseEntity<Object> handleSaldoInsuficienteException(SaldoInsuficienteException ex) {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ContaNaoEncontradaException.class)
+    public ResponseEntity<Object> handleContaNaoEncontradaException(ContaNaoEncontradaException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
     }
 
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
