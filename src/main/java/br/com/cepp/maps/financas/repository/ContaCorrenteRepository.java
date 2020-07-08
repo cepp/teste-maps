@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ContaCorrenteRepository extends JpaRepository<ContaCorrente, String> {
+public interface ContaCorrenteRepository extends JpaRepository<ContaCorrente, Long> {
 
     Optional<ContaCorrente> findByCodigoUsuario(String codigoUsuario);
 }
