@@ -16,7 +16,7 @@ public abstract class AbstractDataTest {
         LancamentoRequestTestDTO lancamento = new LancamentoRequestTestDTO();
         lancamento.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
         lancamento.setDescricao(RandomStringUtils.random(10, true, false));
-        lancamento.setValor(RandomStringUtils.random(5, false, true));
+        lancamento.setValor(RandomStringUtils.random(2, false, true));
         return lancamento;
     }
 

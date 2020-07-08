@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Log4j2
 @Service
@@ -48,7 +49,7 @@ public class ContaCorrenteService {
 
     @Transactional
     public ContaCorrente incluirContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO, codigoUsuario);
+        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN), codigoUsuario);
         return this.repository.save(contaCorrente);
     }
 
@@ -64,7 +65,7 @@ public class ContaCorrenteService {
     public void incluirDebito(@Valid @NotNull(message = "Objeto request é obrigatório") final LancamentoRequestDTO requestDTO,
                               @NotEmpty(message = "Usuário é obrigatório") final String codigoUsuario) {
         final ContaCorrente contaCorrente = this.buscarContaCorrentePorCodigoUsuario(codigoUsuario);
-        final ContaCorrente contaCorrenteSaldoAtualizado = this.atualizarSaldo(contaCorrente, requestDTO.getValor(), TipoNatureza.CREDITO);
+        final ContaCorrente contaCorrenteSaldoAtualizado = this.atualizarSaldo(contaCorrente, requestDTO.getValor(), TipoNatureza.DEBITO);
         this.lancamentoService.incluirDebito(requestDTO, contaCorrenteSaldoAtualizado);
     }
 }

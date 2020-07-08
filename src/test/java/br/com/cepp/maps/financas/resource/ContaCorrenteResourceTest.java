@@ -2,6 +2,7 @@ package br.com.cepp.maps.financas.resource;
 
 import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -202,13 +203,27 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
     @Test
     void debito() {
-        final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
+        final LancamentoRequestTestDTO lancamentoRequestCredito = super.getLancamentoRequestRestMock();
+        lancamentoRequestCredito.setValor(RandomStringUtils.random(4, false, true));
+
+        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat(END_POINT_CREDITO))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(lancamentoRequestCredito.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
+                .andReturn());
+
+        final LancamentoRequestTestDTO lancamentoRequestDebito = super.getLancamentoRequestRestMock();
 
         assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_CHAVE_V1.concat("debito"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(lancamentoRequestTestDTO.toJson())
+                .content(lancamentoRequestDebito.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(content().encoding(UTF_8))
