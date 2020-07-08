@@ -90,8 +90,10 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
         final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
         assertNotNull(contaCorrente);
 
-        assertThrows(SaldoInsuficienteException.class, () -> this.service.atualizarSaldo(contaCorrente,
-                BigDecimal.valueOf(20000000), TipoNatureza.DEBITO));
+        final BigDecimal valor = BigDecimal.valueOf(20000000);
+
+        assertThrows(SaldoInsuficienteException.class, () -> this.service.atualizarSaldo(contaCorrente, valor,
+                TipoNatureza.DEBITO));
     }
 
     @Test
