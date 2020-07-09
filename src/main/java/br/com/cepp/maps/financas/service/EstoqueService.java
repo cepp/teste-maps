@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Log4j2
@@ -60,5 +61,9 @@ public class EstoqueService {
         return valorAcumulado.setScale(2, RoundingMode.HALF_DOWN)
                 .add(valorAjustado.setScale(2, RoundingMode.HALF_DOWN))
                     .setScale(2, RoundingMode.HALF_DOWN);
+    }
+
+    public List<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
+        return this.repository.findByDataPosicao(dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(dataPosicao));
     }
 }

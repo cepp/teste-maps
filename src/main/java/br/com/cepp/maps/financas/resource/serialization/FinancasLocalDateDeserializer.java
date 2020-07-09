@@ -18,6 +18,6 @@ public class FinancasLocalDateDeserializer extends StdDeserializer<LocalDate> {
 
     @Override
     public LocalDate deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return LocalDate.parse(jsonParser.readValueAs(String.class), DateTimeFormatter.ofPattern(DATE_FORMAT));
+        return LocalDate.parse(jsonParser.readValueAs(String.class), DateTimeFormatter.ISO_DATE);
     }
 }

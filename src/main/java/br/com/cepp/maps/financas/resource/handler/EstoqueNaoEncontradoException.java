@@ -7,4 +7,8 @@ public class EstoqueNaoEncontradoException extends ObjetoNaoEncontradoException 
     public EstoqueNaoEncontradoException(String ativo, LocalDate dataPosicao) {
         super(String.format("Estoque do ativo '%s' não encontrado para a data '%s'", ativo, dataPosicao.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
     }
+
+    public EstoqueNaoEncontradoException(LocalDate dataPosicao) {
+        super(String.format("Estoque não encontrado para a data '%s'", dataPosicao.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+    }
 }

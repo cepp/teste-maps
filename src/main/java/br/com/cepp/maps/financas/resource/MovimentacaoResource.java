@@ -1,6 +1,6 @@
 package br.com.cepp.maps.financas.resource;
 
- import br.com.cepp.maps.financas.model.Estoque;
+import br.com.cepp.maps.financas.model.Estoque;
 import br.com.cepp.maps.financas.resource.dto.EstoqueResponseDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
 import br.com.cepp.maps.financas.service.MovimentoService;
@@ -29,6 +29,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO;
@@ -89,7 +90,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/ativo", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -111,7 +112,26 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(estoqueResponseDTO);
     }
 
+    @GetMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
+                    paramType = "header", dataTypeClass = String.class)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
+            @ApiResponse(code = 204, message = "Registro não encontrado"),
+            @ApiResponse(code = 400, message = "Erro de validação"),
+            @ApiResponse(code = 401, message = "Não autorizado"),
+            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
+            @ApiResponse(code = 404, message = "Não encontrado"),
+            @ApiResponse(code = 500, message = "Erro interno")
+    })
+    public ResponseEntity<List<EstoqueResponseDTO>> consultaPorData(@NotNull(message = "Campo 'dataPosicao' é obrigatório") @RequestParam(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
+        return ResponseEntity.ok(this.service.buscarPorDataPosicao(dataPosicao));
+    }
+
     private EstoqueResponseDTO converterEntidadeParaDTO(Estoque estoque) {
-        return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(), estoque.getDataPosicao());
+        return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(), estoque.getDataPosicao(), null, null, null);
     }
 }
