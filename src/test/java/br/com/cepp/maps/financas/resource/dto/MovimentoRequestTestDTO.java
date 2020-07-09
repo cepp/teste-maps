@@ -12,7 +12,6 @@ public class MovimentoRequestTestDTO implements Serializable {
     private static final long serialVersionUID = 5809934958182144403L;
 
     private String ativo;
-    private String valor;
     private String data;
     private String quantidade;
 

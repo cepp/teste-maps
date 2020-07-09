@@ -16,6 +16,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Log4j2
@@ -58,13 +60,18 @@ public class MovimentoService {
         this.estoqueService.atualizaEstoque(movimentoPersistido);
 
         final TipoNatureza tipoNatureza = TipoMovimento.COMPRA.equals(tipoMovimento) ? TipoNatureza.DEBITO : TipoNatureza.CREDITO;
-        this.contaCorrenteService.atualizarSaldoMovimento(codigoUsuario, requestDTO.getValor(), tipoNatureza);
+        this.contaCorrenteService.atualizarSaldoMovimento(codigoUsuario, movimentoPersistido.getValor(), tipoNatureza);
     }
 
     private Movimento converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
                                                @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento) {
         final Ativo ativo = this.ativoService.buscarPorCodigo(requestDTO.getAtivo());
-        return new Movimento(null, ativo, requestDTO.getData(), requestDTO.getQuantidade(), requestDTO.getValor(),
+
+        final BigDecimal valor = ativo.getPreco().setScale(2, RoundingMode.HALF_DOWN)
+                .multiply(requestDTO.getQuantidade().setScale(2, RoundingMode.HALF_DOWN))
+                .setScale(2, RoundingMode.HALF_DOWN);
+
+        return new Movimento(null, ativo, requestDTO.getData(), requestDTO.getQuantidade(), valor,
                 tipoMovimento);
     }
 

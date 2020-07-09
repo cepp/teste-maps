@@ -59,7 +59,6 @@ public abstract class AbstractDataTest {
         movimentoRequestTestDTO.setAtivo(ativo);
         BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.HALF_DOWN);
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
-        movimentoRequestTestDTO.setValor(RandomStringUtils.random(10, false, true));
         movimentoRequestTestDTO.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
         return movimentoRequestTestDTO;
     }
