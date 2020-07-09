@@ -51,7 +51,7 @@ public abstract class AbstractDataTest {
     protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo) {
         String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
         String nome = RandomStringUtils.random(10, true, true);
-        return new AtivoRequestDTO(codigoAtivo, BigDecimal.TEN, nome, tipoAtivo);
+        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo);
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {

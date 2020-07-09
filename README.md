@@ -17,6 +17,16 @@ O artefato compilado depois da instalação é o __financas-1.0.0.jar__ que ser�
 ### Banco de dados
 .....
 
+### Http Status
+A definição do Http Status pode ser visualizada na [documentação da API](docs/swagger.html) ou nos itens abaixo:
+* `200`: será retornado como caso de sucesso da API
+* `204`: será retornado quando não for encontrado algum dado do banco de dados
+* `400`: retornará erros de validação e negócio
+* `401`: quando o usuário não for autorizado a acessar o recurso
+* `404`: quando um recurso não for encontrado
+* `409`: quando tentar fazer uma operação que não é a responsabilidade do recurso, exemplo de alterar no recurso de inclusão 
+* `500`: quando houver um erro não esperado na aplicação
+
 ### Tecnologias escolhidas
 ......
 

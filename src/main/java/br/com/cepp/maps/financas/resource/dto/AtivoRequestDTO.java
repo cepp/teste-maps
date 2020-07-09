@@ -23,9 +23,6 @@ public class AtivoRequestDTO implements Serializable {
 
     @NotEmpty(message = "Campo 'codigo' é obrigatório")
     private final String codigo;
-    @Digits(integer = 15, fraction = 8, message = "Campo 'preco' inválido")
-    @NotNull(message = "Campo 'preco' é obrigatório")
-    private final BigDecimal preco;
     @NotEmpty(message = "Campo 'nome' é obrigatório")
     private final String nome;
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
@@ -34,11 +31,9 @@ public class AtivoRequestDTO implements Serializable {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public AtivoRequestDTO(@JsonProperty(value = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
-                           @JsonProperty(value = "preco") @Digits(integer = 15, fraction = 8, message = "Campo 'preco' inválido") @NotNull(message = "Campo 'preco' é obrigatório") BigDecimal preco,
                            @JsonProperty(value = "nome") @NotEmpty(message = "Campo 'nome' é obrigatório") String nome,
                            @JsonProperty(value = "tipoAtivo") @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo) {
         this.codigo = codigo;
-        this.preco = preco;
         this.nome = nome;
         this.tipoAtivo = tipoAtivo;
     }

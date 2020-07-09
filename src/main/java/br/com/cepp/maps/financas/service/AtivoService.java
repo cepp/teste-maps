@@ -39,7 +39,8 @@ public class AtivoService {
     public Ativo alterar(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO,
                          @NotEmpty(message = "Campo 'codigo é' obrigatório") String codigo) {
         final Ativo ativoBD = this.buscarPorCodigo(codigo);
-        final Ativo ativoParaAtualizar = ativoBD.comPreco(ativoRequestDTO.getPreco()).comNome(ativoRequestDTO.getNome())
+        // TODO: criar métodos para definir as datas do objeto
+        final Ativo ativoParaAtualizar = ativoBD.comNome(ativoRequestDTO.getNome())
                 .comTipoAtivo(ativoRequestDTO.getTipoAtivo());
         return this.repository.save(ativoParaAtualizar);
     }
@@ -51,8 +52,10 @@ public class AtivoService {
     }
 
     private Ativo converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO) {
-        return new Ativo(ativoRequestDTO.getCodigo(), null, ativoRequestDTO.getNome(),
-                ativoRequestDTO.getTipoAtivo()).comPreco(ativoRequestDTO.getPreco());
+//        return new Ativo(ativoRequestDTO.getCodigo(), null, ativoRequestDTO.getNome(),
+//                ativoRequestDTO.getTipoAtivo()).comPreco(ativoRequestDTO.getPreco());
+        // TODO: retornar o ativo com as datas do request
+        return null;
     }
 
     public Ativo buscarPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
