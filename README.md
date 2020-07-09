@@ -18,7 +18,7 @@ O artefato compilado depois da instalação é o __financas-1.0.0.jar__ que ser�
 .....
 
 ### Http Status
-A definição do Http Status pode ser visualizada na [documentação da API](docs/swagger.html) ou nos itens abaixo:
+A definição do Http Status pode ser visualizada na [documentação da API](https://htmlpreview.github.io/?https://github.com/cepp/teste-maps/blob/master/docs/swagger.html) ou nos itens abaixo:
 * `200`: será retornado como caso de sucesso da API
 * `204`: será retornado quando não for encontrado algum dado do banco de dados
 * `400`: retornará erros de validação e negócio
