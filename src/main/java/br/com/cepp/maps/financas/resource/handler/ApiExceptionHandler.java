@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,17 +81,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, "Header incompleto, está faltando uma informação");
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleValidationException(ValidationException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
     @ExceptionHandler(SaldoInsuficienteException.class)
     public ResponseEntity<Object> handleSaldoInsuficienteException(SaldoInsuficienteException ex) {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler({ContaNaoEncontradaException.class, AtivoNaoEncontradoException.class})
+    @ExceptionHandler({ContaNaoEncontradaException.class, AtivoNaoEncontradoException.class, EstoqueNaoEncontradoException.class})
     public ResponseEntity<Object> handleObjetoNaoEncontradoException(ObjetoNaoEncontradoException ex) {
         return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
     }
@@ -100,11 +94,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AtivoJaExisteException.class)
     public ResponseEntity<Object> handleAtivoJaExisteException(AtivoJaExisteException ex) {
         return this.getRespostaErroPadrao(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(ConversaoParaJsonException.class)
-    public ResponseEntity<Object> handleConversaoParaJsonException(ConversaoParaJsonException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {

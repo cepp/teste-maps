@@ -1,20 +1,13 @@
 package br.com.cepp.maps.financas.resource;
 
-import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
@@ -27,32 +20,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-class ContaCorrenteResourceTest extends AbstractDataTest {
+class ContaCorrenteResourceTest extends AbstractResourceTest {
     private static final String URI_V1 = "/contacorrente/";
-    public static final String UTF_8 = "UTF-8";
     public static final String END_POINT_CREDITO = "credito";
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext context;
-
-    @BeforeEach
-    public void setUp() {
-        this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .addFilter((request, response, chain) -> {
-                    response.setCharacterEncoding(UTF_8);
-                    chain.doFilter(request, response);
-                }, "/*")
-                .build();
-    }
 
     @Test
     void credito() {
         final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -62,6 +38,24 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest())
+                .andReturn());
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{'blajfdkj': 8765, 'jkefhj': 'sdjhef'}")
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest())
+                .andReturn());
     }
 
     @Test
@@ -69,7 +63,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
         final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setData(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -82,7 +76,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData(Strings.EMPTY);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +88,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData("3213241");
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +101,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData("99999-88-99");
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +117,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
         final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setValor(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -136,7 +130,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData(Strings.EMPTY);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -148,7 +142,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData("sdadfad");
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +155,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setData("99999-88-99");
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +171,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
         final LancamentoRequestTestDTO lancamentoRequestTestDTO = super.getLancamentoRequestRestMock();
         lancamentoRequestTestDTO.setDescricao(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +184,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         lancamentoRequestTestDTO.setDescricao(Strings.EMPTY);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +200,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
         final LancamentoRequestTestDTO lancamentoRequestCredito = super.getLancamentoRequestRestMock();
         lancamentoRequestCredito.setValor(RandomStringUtils.random(4, false, true));
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat(END_POINT_CREDITO))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -219,7 +213,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
         final LancamentoRequestTestDTO lancamentoRequestDebito = super.getLancamentoRequestRestMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1.concat("debito"))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat("debito"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -234,7 +228,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
     @Test
     void consulta() {
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1.concat("/").concat(CODIGO_USUARIO_GLOBAL))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/").concat(CODIGO_USUARIO_GLOBAL))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -247,7 +241,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
     @Test
     void consultaNotFound() {
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +254,7 @@ class ContaCorrenteResourceTest extends AbstractDataTest {
 
     @Test
     void consultaNoContent() {
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1.concat("/hdjfhjdhfj"))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/hdjfhjdhfj"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)

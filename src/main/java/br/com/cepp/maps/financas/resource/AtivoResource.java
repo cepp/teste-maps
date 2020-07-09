@@ -2,10 +2,7 @@ package br.com.cepp.maps.financas.resource;
 
 import br.com.cepp.maps.financas.model.Ativo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
-import br.com.cepp.maps.financas.resource.handler.ConversaoParaJsonException;
 import br.com.cepp.maps.financas.service.AtivoService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -41,12 +38,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequestMapping("/ativos")
 public class AtivoResource {
     private final AtivoService service;
-    private final ObjectMapper objectMapper;
 
     @Autowired
-    public AtivoResource(AtivoService service, ObjectMapper objectMapper) {
+    public AtivoResource(AtivoService service) {
         this.service = service;
-        this.objectMapper = objectMapper;
     }
 
     @PostMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
@@ -126,18 +121,10 @@ public class AtivoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {
+    public ResponseEntity<AtivoRequestDTO> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {
         final Ativo ativo = this.service.buscarPorCodigo(codigo);
         final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getPreco(), ativo.getNome(),
                 ativo.getTipoAtivo());
-        return ResponseEntity.ok(this.toJson(requestDTO));
-    }
-
-    private String toJson(Object object) {
-        try {
-            return this.objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            throw new ConversaoParaJsonException(object.toString());
-        }
+        return ResponseEntity.ok(requestDTO);
     }
 }

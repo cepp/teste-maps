@@ -187,4 +187,28 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
         final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock(BigDecimal.valueOf(60000000));
         assertThrows(SaldoInsuficienteException.class, () -> this.service.incluirDebito(lancamentoRequestDTO, CODIGO_USUARIO_GLOBAL));
     }
+
+    @Test
+    void atualizarSaldoMovimento() {
+        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
+        assertNotNull(contaCorrente);
+
+        final ContaCorrente contaCorrenteAtualizada = assertDoesNotThrow(() -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertNotNull(contaCorrenteAtualizada);
+        assertTrue(contaCorrenteAtualizada.getSaldoConta().compareTo(contaCorrente.getSaldoConta()) > 0);
+        assertEquals(contaCorrenteAtualizada.getSaldoConta(), contaCorrente.getSaldoConta().add(BigDecimal.TEN));
+    }
+
+    @Test
+    void atualizarSaldoMovimentoValidarParametros() {
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(null,
+                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(Strings.EMPTY,
+                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
+                null, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, null));
+    }
 }

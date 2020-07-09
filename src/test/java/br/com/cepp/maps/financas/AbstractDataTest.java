@@ -5,12 +5,14 @@ import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
+import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -52,12 +54,13 @@ public abstract class AbstractDataTest {
         return ativoRequest;
     }
 
-    protected AtivoRequestTestDTO getAtivoRequestDTOMock(String codigo) {
-        AtivoRequestTestDTO ativoRequest = new AtivoRequestTestDTO();
-        String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
-        ativoRequest.setCodigo(codigoAtivo);
-        ativoRequest.setPreco(RandomStringUtils.random(8, false, true));
-        ativoRequest.setTipoAtivo(TipoAtivo.RV.name());
-        return ativoRequest;
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo) {
+        MovimentoRequestTestDTO movimentoRequestTestDTO = new MovimentoRequestTestDTO();
+        movimentoRequestTestDTO.setAtivo(ativo);
+        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.HALF_DOWN);
+        movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
+        movimentoRequestTestDTO.setValor(RandomStringUtils.random(10, false, true));
+        movimentoRequestTestDTO.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
+        return movimentoRequestTestDTO;
     }
 }
