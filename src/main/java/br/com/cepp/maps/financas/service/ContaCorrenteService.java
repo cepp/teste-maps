@@ -68,4 +68,12 @@ public class ContaCorrenteService {
         final ContaCorrente contaCorrenteSaldoAtualizado = this.atualizarSaldo(contaCorrente, requestDTO.getValor(), TipoNatureza.DEBITO);
         this.lancamentoService.incluirDebito(requestDTO, contaCorrenteSaldoAtualizado);
     }
+
+    @Transactional
+    public ContaCorrente atualizarSaldoMovimento(@Valid @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
+                                                 @NotNull(message = "Campo 'valor' é obrigatório") final BigDecimal valor,
+                                                 @NotNull(message = "Campo 'natureza' é obrigatório") final TipoNatureza natureza) {
+        ContaCorrente contaCorrente = this.buscarContaCorrentePorCodigoUsuario(codigoUsuario);
+        return this.atualizarSaldo(contaCorrente, valor, natureza);
+    }
 }

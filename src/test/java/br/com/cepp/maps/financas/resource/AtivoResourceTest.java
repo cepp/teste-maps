@@ -30,30 +30,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-class AtivoResourceTest extends AbstractDataTest {
+class AtivoResourceTest extends AbstractResourceTest {
     private static final String URI_V1 = "/ativos/";
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext context;
-
-    @BeforeEach
-    public void setUp() {
-        this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .addFilter((request, response, chain) -> {
-                    response.setCharacterEncoding(UTF_8);
-                    chain.doFilter(request, response);
-                }, "/*")
-                .build();
-    }
 
     @Test
     void incluir() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -69,7 +53,7 @@ class AtivoResourceTest extends AbstractDataTest {
         final AtivoRequestTestDTO validarCodigo = super.getAtivoRequestDTOMock();
         validarCodigo.setCodigo(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarCodigo.toJson())
@@ -81,7 +65,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         validarCodigo.setCodigo(Strings.EMPTY);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarCodigo.toJson())
@@ -94,7 +78,7 @@ class AtivoResourceTest extends AbstractDataTest {
         final AtivoRequestTestDTO validarPreco = super.getAtivoRequestDTOMock();
         validarPreco.setPreco(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarPreco.toJson())
@@ -106,7 +90,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         validarPreco.setPreco(BigDecimal.TEN.setScale(10, RoundingMode.HALF_DOWN).toString());
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarPreco.toJson())
@@ -118,7 +102,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         validarPreco.setPreco(BigDecimal.valueOf(9999999999999999L).toString());
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarPreco.toJson())
@@ -131,7 +115,7 @@ class AtivoResourceTest extends AbstractDataTest {
         final AtivoRequestTestDTO validarNome = super.getAtivoRequestDTOMock();
         validarNome.setNome(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarNome.toJson())
@@ -143,7 +127,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         validarNome.setNome(Strings.EMPTY);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarNome.toJson())
@@ -156,7 +140,7 @@ class AtivoResourceTest extends AbstractDataTest {
         final AtivoRequestTestDTO validarTipo = super.getAtivoRequestDTOMock();
         validarTipo.setTipoAtivo(null);
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarTipo.toJson())
@@ -168,7 +152,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         validarTipo.setTipoAtivo(RandomStringUtils.random(7, true, true));
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarTipo.toJson())
@@ -182,7 +166,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void incluirAtivoJaExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -192,7 +176,7 @@ class AtivoResourceTest extends AbstractDataTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -206,7 +190,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void alterar() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -218,7 +202,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
         ativoRequestTestDTO.setNome(RandomStringUtils.random(20, true, true));
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(put(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(put(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -233,7 +217,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void alterarAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(put(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(put(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -247,7 +231,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void alterarValidarPathParam() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(put(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(put(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -261,7 +245,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void remover() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -271,7 +255,7 @@ class AtivoResourceTest extends AbstractDataTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(delete(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(delete(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
@@ -285,7 +269,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void removerAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(delete(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(delete(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
@@ -296,7 +280,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
     @Test
     void removerValidarPathParam() {
-        assertDoesNotThrow(() -> this.mockMvc.perform(delete(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(delete(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
@@ -309,7 +293,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void consultaPorCodigo() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(post(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
@@ -319,7 +303,7 @@ class AtivoResourceTest extends AbstractDataTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
@@ -332,7 +316,7 @@ class AtivoResourceTest extends AbstractDataTest {
     void consultaPorCodigoAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
@@ -343,7 +327,7 @@ class AtivoResourceTest extends AbstractDataTest {
 
     @Test
     void consultaPorCodigoValidarPathParam() {
-        assertDoesNotThrow(() -> this.mockMvc.perform(get(URI_V1)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))

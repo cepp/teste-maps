@@ -57,7 +57,8 @@ class LancamentoServiceTest extends AbstractDataTest {
 
     @Test
     void incluirDebitoSaldoInsuficiente() {
-        final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock(BigDecimal.valueOf(20000000));
+        final ContaCorrente contaCorrenteBD = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL);
+        final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock(contaCorrenteBD.getSaldoConta().add(BigDecimal.TEN));
         ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
         assertThrows(SaldoInsuficienteException.class, () -> this.service.incluirDebito(lancamentoRequestDTO, contaCorrente));
     }
