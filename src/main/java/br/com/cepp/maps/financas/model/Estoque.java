@@ -15,7 +15,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
@@ -46,14 +45,14 @@ public class Estoque implements Serializable {
     @NotNull(message = "Campo 'dataPosicao' é obrigatório")
     private LocalDate dataPosicao;
     @DecimalMin(value = "0.00", message = "Campo 'valor' inválido")
-    @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
+    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
     private BigDecimal valor;
 
     public Estoque comQuantidadeEValor(@DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
                                        @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
                                        @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade,
-                                       @Digits(integer = 8, fraction = 2, message = "Campo 'valor' inválido")
+                                       @Digits(integer = 8, fraction = 0, message = "Campo 'valor' inválido")
                                        @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor) {
         return new Estoque(this.id, quantidade, this.ativo, this.dataPosicao, valor);
     }

@@ -168,24 +168,25 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
         assertNotNull(ativo);
 
         final LocalDate dataPosicao = LocalDate.now();
-        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao);
+        final MovimentoRequestTestDTO movimentoVendaRV = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movimentoRequestTestDTO.toJson())
+                .content(movimentoVendaRV.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
+        final MovimentoRequestTestDTO movimentoCompraRV = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movimentoRequestTestDTO.toJson())
+                .content(movimentoCompraRV.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
@@ -195,24 +196,25 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
         final AtivoRequestDTO ativoFundoDTO = super.getAtivoRequestDTO(TipoAtivo.FUNDO);
         final Ativo ativoFundo = this.ativoService.incluir(ativoFundoDTO);
         assertNotNull(ativoFundo);
-        final MovimentoRequestTestDTO movimentoFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao);
+        final MovimentoRequestTestDTO movimentoVendaFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movimentoFundo.toJson())
+                .content(movimentoVendaFundo.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
+        final MovimentoRequestTestDTO movimentoCompraFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movimentoFundo.toJson())
+                .content(movimentoCompraFundo.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
@@ -235,11 +237,12 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
+        final MovimentoRequestTestDTO movimentoCompraRF = super.getMovimentoRequestTestDTOMock(ativoRF.getCodigo(), dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movimentoRF.toJson())
+                .content(movimentoCompraRF.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
@@ -247,7 +250,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andReturn());
 
         MvcResult result = assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
-                .queryParam("dataPosicao", movimentoRF.getData())
+                .queryParam("dataPosicao", movimentoCompraRF.getData())
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -263,11 +266,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaPorDataEstoqueNaoExiste() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
-
-        final String localDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        final String localDate = LocalDate.now().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
                 .queryParam("dataPosicao", localDate)

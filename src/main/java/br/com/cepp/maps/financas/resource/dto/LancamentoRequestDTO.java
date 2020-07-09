@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 public class LancamentoRequestDTO implements Serializable {
     private static final long serialVersionUID = 1540337794210819194L;
 
+    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
     private final BigDecimal valor;
     @NotEmpty(message = "Campo 'descricao' é obrigatório")
@@ -31,7 +33,7 @@ public class LancamentoRequestDTO implements Serializable {
     private final LocalDate data;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public LancamentoRequestDTO(@JsonProperty(value = "valor") @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor,
+    public LancamentoRequestDTO(@JsonProperty(value = "valor") @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido") @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor,
                                 @JsonProperty(value = "descricao") @NotEmpty(message = "Campo 'descricao' é obrigatório") String descricao,
                                 @JsonProperty(value = "data") @NotNull(message = "Campo 'data' é obrigatório") LocalDate data) {
         this.valor = valor;

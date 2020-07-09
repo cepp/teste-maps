@@ -12,6 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface MovimentoRepository extends JpaRepository<Movimento, Long> {
+    @Query(value = "SELECT sum(a.preco) FROM  Movimento m JOIN m.ativo a " +
+            "WHERE  m.tipoMovimento = :tipoMovimento " +
+            "AND a.codigo = :ativo")
+    Optional<BigDecimal> somaPrecoPorAtivoTipoMovimento(String ativo, TipoMovimento tipoMovimento);
     @Query(value = "SELECT sum(m.valor) FROM  Movimento m JOIN m.ativo a " +
             "WHERE  m.tipoMovimento = :tipoMovimento " +
             "AND a.codigo = :ativo")

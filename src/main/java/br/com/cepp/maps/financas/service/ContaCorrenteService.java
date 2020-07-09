@@ -43,13 +43,14 @@ public class ContaCorrenteService {
             throw new SaldoInsuficienteException();
         }
         BigDecimal valorAtualizar = natureza.isDebito() ? valor.negate() : valor;
-        BigDecimal saldoAtualizado = contaCorrente.getSaldoConta().add(valorAtualizar);
+        BigDecimal saldoAtualizado = contaCorrente.getSaldoConta().setScale(0, RoundingMode.DOWN)
+                .add(valorAtualizar.setScale(0, RoundingMode.DOWN)).setScale(0, RoundingMode.DOWN);
         return this.repository.save(contaCorrente.comSaldoAtualizado(saldoAtualizado));
     }
 
     @Transactional
     public ContaCorrente incluirContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN), codigoUsuario);
+        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO.setScale(0, RoundingMode.DOWN), codigoUsuario);
         return this.repository.save(contaCorrente);
     }
 

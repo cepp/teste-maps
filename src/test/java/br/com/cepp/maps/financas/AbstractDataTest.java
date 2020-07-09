@@ -32,7 +32,8 @@ public abstract class AbstractDataTest {
 
     protected LancamentoRequestDTO getLancamentoRequestMock(final BigDecimal valor) {
         BigDecimal valorValido = valor == null ? BigDecimal.valueOf(RandomUtils.nextDouble(1.0, 99999.299)) : valor;
-        return new LancamentoRequestDTO(valorValido, RandomStringUtils.random(10, true, false), LocalDate.now());
+        return new LancamentoRequestDTO(valorValido.setScale(0, RoundingMode.DOWN),
+                RandomStringUtils.random(10, true, false), LocalDate.now());
     }
 
     protected AtivoRequestDTO getAtivoRequestDTO() {
@@ -67,9 +68,13 @@ public abstract class AbstractDataTest {
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data) {
+        return this.getMovimentoRequestTestDTOMock(ativo, data, 999999);
+    }
+
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data, Integer quantidadeMax) {
         MovimentoRequestTestDTO movimentoRequestTestDTO = new MovimentoRequestTestDTO();
         movimentoRequestTestDTO.setAtivo(ativo);
-        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.HALF_DOWN);
+        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, quantidadeMax)).setScale(2, RoundingMode.HALF_DOWN);
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
         movimentoRequestTestDTO.setData(data.format(DateTimeFormatter.ISO_DATE));
         return movimentoRequestTestDTO;

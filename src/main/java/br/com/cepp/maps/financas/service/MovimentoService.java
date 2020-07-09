@@ -22,7 +22,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Log4j2
 @Service
@@ -71,9 +70,9 @@ public class MovimentoService {
                                                @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento) {
         final Ativo ativo = this.ativoService.buscarPorCodigo(requestDTO.getAtivo());
 
-        final BigDecimal valor = ativo.getPreco().setScale(2, RoundingMode.HALF_DOWN)
-                .multiply(requestDTO.getQuantidade().setScale(2, RoundingMode.HALF_DOWN))
-                .setScale(2, RoundingMode.HALF_DOWN);
+        final BigDecimal valor = ativo.getPreco()
+                .multiply(requestDTO.getQuantidade())
+                .setScale(0, RoundingMode.DOWN);
 
         return new Movimento(null, ativo, requestDTO.getData(), requestDTO.getQuantidade(), valor,
                 tipoMovimento);
@@ -90,7 +89,7 @@ public class MovimentoService {
         listaPosicao.forEach(estoque -> {
             final BigDecimal totalCompra = calcularRendimento(estoque.getAtivo());
 
-            final BigDecimal lucro = calcularLucro(estoque.getAtivo(), totalCompra);
+            final BigDecimal lucro = calcularLucro(estoque.getAtivo());
             log.debug("{}: {}", estoque.getAtivo().getCodigo(), lucro);
 
             final EstoqueResponseDTO estoqueResponseDTO = this.converterEntidadeParaDTO(estoque, lucro, totalCompra);
@@ -104,19 +103,17 @@ public class MovimentoService {
         return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(), estoque.getDataPosicao(), lucro, rendimento, estoque.getValor());
     }
 
-    private BigDecimal calcularLucro(Ativo ativo, BigDecimal totalCompra) {
-        if(BigDecimal.ZERO.compareTo(totalCompra) == 0) {
-            return totalCompra;
-        }
-        final BigDecimal totalVenda = this.repository.somaValorPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.VENDA).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_DOWN);
-        return totalVenda.subtract(totalCompra).setScale(2, RoundingMode.HALF_DOWN);
+    private BigDecimal calcularLucro(Ativo ativo) {
+        final BigDecimal totalVenda = this.repository.somaValorPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.VENDA).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.DOWN);
+        final BigDecimal totalCompra = this.repository.somaValorPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.DOWN);
+        return totalVenda.subtract(totalCompra).setScale(0, RoundingMode.DOWN);
     }
 
     private BigDecimal calcularRendimento(Ativo ativo) {
-        final BigDecimal totalCompra = this.repository.somaValorPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_DOWN);
+        final BigDecimal totalPrecoCompra = this.repository.somaPrecoPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO);
         Long quantidadeCompras = this.repository.countByAtivoAndTipoMovimento(ativo, TipoMovimento.COMPRA);
-        final BigDecimal mediaCompra = quantidadeCompras == 0L ? BigDecimal.ZERO : totalCompra.divide(BigDecimal.valueOf(quantidadeCompras),2, RoundingMode.HALF_DOWN);
-        final BigDecimal rendimento = quantidadeCompras == 0L ? BigDecimal.ZERO : ativo.getPreco().setScale(2, RoundingMode.HALF_DOWN).divide(mediaCompra, 2, RoundingMode.HALF_DOWN);
+        final BigDecimal mediaPrecoCompra = quantidadeCompras == 0L ? BigDecimal.ZERO : totalPrecoCompra.divide(BigDecimal.valueOf(quantidadeCompras),0, RoundingMode.DOWN);
+        final BigDecimal rendimento = quantidadeCompras == 0L ? BigDecimal.ZERO : ativo.getPreco().divide(mediaPrecoCompra, 0, RoundingMode.DOWN);
         log.debug("{}: {}", ativo.getCodigo(), rendimento);
         return rendimento;
     }

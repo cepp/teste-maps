@@ -36,11 +36,11 @@ public class EstoqueService {
     public void atualizaEstoque(@Valid @NotNull(message = "Movimento é obrigatório") Movimento movimento) {
         Optional<Estoque> optionalEstoque = this.repository.findByAtivo_CodigoAndDataPosicao(movimento.getAtivo().getCodigo(), movimento.getData());
 
-        final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN),
-                movimento.getAtivo(), movimento.getData(), BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN)));
+        final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.DOWN),
+                movimento.getAtivo(), movimento.getData(), BigDecimal.ZERO.setScale(0, RoundingMode.DOWN)));
 
-        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento());
-        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento());
+        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento(), 2);
+        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento(), 0);
 
         if(BigDecimal.ZERO.compareTo(quantidade) > 0 || BigDecimal.ZERO.compareTo(valor) > 0) {
             throw new SaldoInsuficienteException();
@@ -56,11 +56,11 @@ public class EstoqueService {
         return this.repository.findByAtivo_CodigoAndDataPosicao(ativo, dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(ativo, dataPosicao));
     }
 
-    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado, TipoMovimento tipoMovimento) {
+    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado, TipoMovimento tipoMovimento, Integer precisao) {
         final BigDecimal valorAjustado = TipoMovimento.COMPRA.equals(tipoMovimento) ? valor.negate() : valor;
-        return valorAcumulado.setScale(2, RoundingMode.HALF_DOWN)
-                .add(valorAjustado.setScale(2, RoundingMode.HALF_DOWN))
-                    .setScale(2, RoundingMode.HALF_DOWN);
+        return valorAcumulado
+                .add(valorAjustado)
+                    .setScale(precisao, RoundingMode.DOWN);
     }
 
     public List<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
