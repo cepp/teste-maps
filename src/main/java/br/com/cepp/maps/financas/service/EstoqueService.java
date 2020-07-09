@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Log4j2
@@ -35,14 +36,17 @@ public class EstoqueService {
     public void atualizaEstoque(@Valid @NotNull(message = "Movimento é obrigatório") Movimento movimento) {
         Optional<Estoque> optionalEstoque = this.repository.findByAtivo_CodigoAndDataPosicao(movimento.getAtivo().getCodigo(), movimento.getData());
 
-        final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_DOWN), movimento.getAtivo(), movimento.getData()));
+        final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.DOWN),
+                movimento.getAtivo(), movimento.getData(), BigDecimal.ZERO.setScale(0, RoundingMode.DOWN)));
 
-        final BigDecimal quantidadeMovimento = TipoMovimento.COMPRA.equals(movimento.getTipoMovimento()) ? movimento.getQuantidade().negate() : movimento.getQuantidade();
-        final BigDecimal quantidade = estoque.getQuantidade().add(quantidadeMovimento);
-        if(BigDecimal.ZERO.compareTo(quantidade) > 0) {
+        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento(), 2);
+        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento(), 0);
+
+        if(BigDecimal.ZERO.compareTo(quantidade) > 0 || BigDecimal.ZERO.compareTo(valor) > 0) {
             throw new SaldoInsuficienteException();
         }
-        final Estoque estoqueAtualizado = estoque.comQuantidade(quantidade);
+
+        final Estoque estoqueAtualizado = estoque.comQuantidadeEValor(quantidade, valor);
 
         this.repository.save(estoqueAtualizado);
     }
@@ -50,5 +54,16 @@ public class EstoqueService {
     public Estoque buscarPosicaoPorAtivo(@NotEmpty(message = "Campo 'ativo' é obrigatório") String ativo,
                                          @NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
         return this.repository.findByAtivo_CodigoAndDataPosicao(ativo, dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(ativo, dataPosicao));
+    }
+
+    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado, TipoMovimento tipoMovimento, Integer precisao) {
+        final BigDecimal valorAjustado = TipoMovimento.COMPRA.equals(tipoMovimento) ? valor.negate() : valor;
+        return valorAcumulado
+                .add(valorAjustado)
+                    .setScale(precisao, RoundingMode.DOWN);
+    }
+
+    public List<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
+        return this.repository.findByDataPosicao(dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(dataPosicao));
     }
 }

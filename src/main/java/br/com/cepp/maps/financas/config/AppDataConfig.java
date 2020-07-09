@@ -11,7 +11,8 @@ public class AppDataConfig {
 
     @Bean
     @Profile(value = {"test", "dev"})
-    public void loadData(ContaCorrenteService contaCorrenteService) {
+    public String loadData(ContaCorrenteService contaCorrenteService) {
         contaCorrenteService.incluirContaCorrente(CODIGO_USUARIO_GLOBAL);
+        return "";
     }
 }

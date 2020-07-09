@@ -32,17 +32,26 @@ public abstract class AbstractDataTest {
 
     protected LancamentoRequestDTO getLancamentoRequestMock(final BigDecimal valor) {
         BigDecimal valorValido = valor == null ? BigDecimal.valueOf(RandomUtils.nextDouble(1.0, 99999.299)) : valor;
-        return new LancamentoRequestDTO(valorValido, RandomStringUtils.random(10, true, false), LocalDate.now());
+        return new LancamentoRequestDTO(valorValido.setScale(0, RoundingMode.DOWN),
+                RandomStringUtils.random(10, true, false), LocalDate.now());
     }
 
     protected AtivoRequestDTO getAtivoRequestDTO() {
-        return this.getAtivoRequestDTO(null);
+        return this.getAtivoRequestDTO(Strings.EMPTY);
     }
 
     protected AtivoRequestDTO getAtivoRequestDTO(String codigo) {
+        return this.getAtivoRequestDTO(codigo, TipoAtivo.RV);
+    }
+
+    protected AtivoRequestDTO getAtivoRequestDTO(TipoAtivo tipoAtivo) {
+        return this.getAtivoRequestDTO(null, tipoAtivo);
+    }
+
+    protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo) {
         String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
         String nome = RandomStringUtils.random(10, true, true);
-        return new AtivoRequestDTO(codigoAtivo, BigDecimal.TEN, nome, TipoAtivo.RV);
+        return new AtivoRequestDTO(codigoAtivo, BigDecimal.TEN, nome, tipoAtivo);
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
@@ -55,12 +64,19 @@ public abstract class AbstractDataTest {
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo) {
+        return this.getMovimentoRequestTestDTOMock(ativo, LocalDate.now());
+    }
+
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data) {
+        return this.getMovimentoRequestTestDTOMock(ativo, data, 999999);
+    }
+
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data, Integer quantidadeMax) {
         MovimentoRequestTestDTO movimentoRequestTestDTO = new MovimentoRequestTestDTO();
         movimentoRequestTestDTO.setAtivo(ativo);
-        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.HALF_DOWN);
+        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, quantidadeMax)).setScale(2, RoundingMode.HALF_DOWN);
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
-        movimentoRequestTestDTO.setValor(RandomStringUtils.random(10, false, true));
-        movimentoRequestTestDTO.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
+        movimentoRequestTestDTO.setData(data.format(DateTimeFormatter.ISO_DATE));
         return movimentoRequestTestDTO;
     }
 }

@@ -53,7 +53,7 @@ public class Movimento implements Serializable {
     @NotNull(message = "Campo 'quantidade' é obrigatório")
     private BigDecimal quantidade;
     @DecimalMin(value = "0.01", message = "Campo 'valor' inválido")
-    @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
+    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
     private BigDecimal valor;
     @Enumerated(EnumType.STRING)

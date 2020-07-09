@@ -44,10 +44,16 @@ public class Estoque implements Serializable {
     private Ativo ativo;
     @NotNull(message = "Campo 'dataPosicao' é obrigatório")
     private LocalDate dataPosicao;
+    @DecimalMin(value = "0.00", message = "Campo 'valor' inválido")
+    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
+    @NotNull(message = "Campo 'valor' é obrigatório")
+    private BigDecimal valor;
 
-    public Estoque comQuantidade(@DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
-                                 @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
-                                 @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade) {
-        return new Estoque(this.id, quantidade, this.ativo, this.dataPosicao);
+    public Estoque comQuantidadeEValor(@DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
+                                       @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
+                                       @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade,
+                                       @Digits(integer = 8, fraction = 0, message = "Campo 'valor' inválido")
+                                       @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor) {
+        return new Estoque(this.id, quantidade, this.ativo, this.dataPosicao, valor);
     }
 }
