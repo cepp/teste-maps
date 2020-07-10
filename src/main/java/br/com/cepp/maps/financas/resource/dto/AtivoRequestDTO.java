@@ -1,8 +1,11 @@
 package br.com.cepp.maps.financas.resource.dto;
 
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
+import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -27,8 +30,12 @@ public class AtivoRequestDTO implements Serializable {
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
     @Enumerated(EnumType.STRING)
     private final TipoAtivo tipoAtivo;
+    @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FinancasLocalDateDeserializer.DATE_FORMAT)
     @NotNull(message = "Campo 'dataEmissao' é obrigatório")
     private final LocalDate dataEmissao;
+    @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FinancasLocalDateDeserializer.DATE_FORMAT)
     @NotNull(message = "Campo 'dataVencimento' é obrigatório")
     private final LocalDate dataVencimento;
 
@@ -37,7 +44,7 @@ public class AtivoRequestDTO implements Serializable {
                            @JsonProperty(value = "nome") @NotEmpty(message = "Campo 'nome' é obrigatório") String nome,
                            @JsonProperty(value = "tipoAtivo") @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo,
                            @JsonProperty(value = "dataEmissao") @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate dataEmissao,
-                           @JsonProperty(value = "dataEmissao") @NotNull(message = "Campo 'dataVencimento' é obrigatório") LocalDate dataVencimento) {
+                           @JsonProperty(value = "dataVencimento") @NotNull(message = "Campo 'dataVencimento' é obrigatório") LocalDate dataVencimento) {
         this.codigo = codigo;
         this.nome = nome;
         this.tipoAtivo = tipoAtivo;

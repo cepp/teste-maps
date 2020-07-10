@@ -12,9 +12,10 @@ public class AtivoRequestTestDTO implements Serializable {
     private static final long serialVersionUID = -2394763346833853202L;
 
     private String codigo;
-    private String preco;
     private String nome;
     private String tipoAtivo;
+    private String dataVencimento;
+    private String dataEmissao;
 
     @JsonIgnore
     public String toJson() {

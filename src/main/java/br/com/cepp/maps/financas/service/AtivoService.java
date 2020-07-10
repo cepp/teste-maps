@@ -61,7 +61,7 @@ public class AtivoService {
     }
 
     private void validarDatas(LocalDate dataEmissao, LocalDate dataVencimento) {
-        if(dataEmissao.compareTo(dataVencimento) > 0) {
+        if(dataEmissao.compareTo(dataVencimento) >= 0) {
             throw new ValidacaoNegocioException("Data Emissão deve ser sempre anterior à Data Vencimento");
         }
     }

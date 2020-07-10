@@ -62,9 +62,10 @@ public abstract class AbstractDataTest {
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
         AtivoRequestTestDTO ativoRequest = new AtivoRequestTestDTO();
         ativoRequest.setCodigo(RandomStringUtils.random(8, true, true));
-        ativoRequest.setPreco(RandomStringUtils.random(8, false, true));
         ativoRequest.setTipoAtivo(TipoAtivo.RV.name());
         ativoRequest.setNome(RandomStringUtils.random(10, true, true));
+        ativoRequest.setDataEmissao(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        ativoRequest.setDataVencimento(LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE));
         return ativoRequest;
     }
 
