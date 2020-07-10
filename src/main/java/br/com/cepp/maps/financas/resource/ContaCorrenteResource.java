@@ -56,7 +56,6 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
@@ -77,7 +76,6 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
@@ -98,7 +96,6 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })

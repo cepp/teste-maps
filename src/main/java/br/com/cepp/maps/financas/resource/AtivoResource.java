@@ -55,7 +55,6 @@ public class AtivoResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 409, message = "Recurso já existe"),
             @ApiResponse(code = 500, message = "Erro interno")
@@ -76,7 +75,6 @@ public class AtivoResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
@@ -97,7 +95,6 @@ public class AtivoResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
@@ -117,14 +114,13 @@ public class AtivoResource {
             @ApiResponse(code = 204, message = "Registro não encontrado"),
             @ApiResponse(code = 400, message = "Erro de validação"),
             @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 403, message = "Acesso proibido ao usuário"),
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
     public ResponseEntity<AtivoRequestDTO> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {
         final Ativo ativo = this.service.buscarPorCodigo(codigo);
-        final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getPreco(), ativo.getNome(),
-                ativo.getTipoAtivo());
+        final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getNome(), ativo.getTipoAtivo(),
+                ativo.getDataEmissao(), ativo.getDataVencimento());
         return ResponseEntity.ok(requestDTO);
     }
 }

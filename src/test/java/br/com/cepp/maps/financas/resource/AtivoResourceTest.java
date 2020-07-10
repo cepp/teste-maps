@@ -1,31 +1,23 @@
 package br.com.cepp.maps.financas.resource;
 
-import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static br.com.cepp.maps.financas.resource.ContaCorrenteResourceTest.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,43 +67,6 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string("[Campo 'codigo' é obrigatório]"))
                 .andReturn());
 
-        final AtivoRequestTestDTO validarPreco = super.getAtivoRequestDTOMock();
-        validarPreco.setPreco(null);
-
-        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validarPreco.toJson())
-                .characterEncoding(UTF_8))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("[Campo 'preco' é obrigatório]"))
-                .andReturn());
-
-        validarPreco.setPreco(BigDecimal.TEN.setScale(10, RoundingMode.HALF_DOWN).toString());
-
-        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validarPreco.toJson())
-                .characterEncoding(UTF_8))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("[Campo 'preco' inválido]"))
-                .andReturn());
-
-        validarPreco.setPreco(BigDecimal.valueOf(9999999999999999L).toString());
-
-        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validarPreco.toJson())
-                .characterEncoding(UTF_8))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("[Campo 'preco' inválido]"))
-                .andReturn());
-
         final AtivoRequestTestDTO validarNome = super.getAtivoRequestDTOMock();
         validarNome.setNome(null);
 
@@ -159,6 +114,19 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest())
+                .andReturn());
+
+        final AtivoRequestTestDTO validarDataEmissaoMaiorDataVencimento = super.getAtivoRequestDTOMock();
+        validarDataEmissaoMaiorDataVencimento.setDataEmissao(LocalDate.now().plusDays(3).format(DateTimeFormatter.ISO_DATE));
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(validarDataEmissaoMaiorDataVencimento.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Data Emissão deve ser sempre anterior à Data Vencimento"))
                 .andReturn());
     }
 

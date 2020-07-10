@@ -70,9 +70,11 @@ public class MovimentoService {
                                                @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento) {
         final Ativo ativo = this.ativoService.buscarPorCodigo(requestDTO.getAtivo());
 
-        final BigDecimal valor = ativo.getPreco()
-                .multiply(requestDTO.getQuantidade())
-                .setScale(0, RoundingMode.DOWN);
+        // TODO: buscar valor do ativo pela data
+//        final BigDecimal valor = ativo.getPreco()
+//                .multiply(requestDTO.getQuantidade())
+//                .setScale(0, RoundingMode.DOWN);
+        final BigDecimal valor = BigDecimal.ZERO;
 
         return new Movimento(null, ativo, requestDTO.getData(), requestDTO.getQuantidade(), valor,
                 tipoMovimento);
@@ -113,7 +115,8 @@ public class MovimentoService {
         final BigDecimal totalPrecoCompra = this.repository.somaPrecoPorAtivoTipoMovimento(ativo.getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO);
         Long quantidadeCompras = this.repository.countByAtivoAndTipoMovimento(ativo, TipoMovimento.COMPRA);
         final BigDecimal mediaPrecoCompra = quantidadeCompras == 0L ? BigDecimal.ZERO : totalPrecoCompra.divide(BigDecimal.valueOf(quantidadeCompras),0, RoundingMode.DOWN);
-        final BigDecimal rendimento = quantidadeCompras == 0L ? BigDecimal.ZERO : ativo.getPreco().divide(mediaPrecoCompra, 0, RoundingMode.DOWN);
+        //TODO: buscar o valor do ativo na data
+        final BigDecimal rendimento = BigDecimal.ZERO;//quantidadeCompras == 0L ? BigDecimal.ZERO : ativo.getPreco().divide(mediaPrecoCompra, 0, RoundingMode.DOWN);
         log.debug("{}: {}", ativo.getCodigo(), rendimento);
         return rendimento;
     }

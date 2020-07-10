@@ -41,25 +41,31 @@ public abstract class AbstractDataTest {
     }
 
     protected AtivoRequestDTO getAtivoRequestDTO(String codigo) {
-        return this.getAtivoRequestDTO(codigo, TipoAtivo.RV);
+        return this.getAtivoRequestDTO(codigo, TipoAtivo.RV, null);
     }
 
     protected AtivoRequestDTO getAtivoRequestDTO(TipoAtivo tipoAtivo) {
-        return this.getAtivoRequestDTO(null, tipoAtivo);
+        return this.getAtivoRequestDTO(null, tipoAtivo, null);
     }
 
-    protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo) {
+    protected AtivoRequestDTO getAtivoRequestDTO(LocalDate dataEmissao) {
+        return this.getAtivoRequestDTO(null, TipoAtivo.RV, dataEmissao);
+    }
+
+    protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo, LocalDate dataEmissao) {
         String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
         String nome = RandomStringUtils.random(10, true, true);
-        return new AtivoRequestDTO(codigoAtivo, BigDecimal.TEN, nome, tipoAtivo);
+        LocalDate novaDataEmissao = dataEmissao == null ? LocalDate.now() : dataEmissao;
+        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo, novaDataEmissao, LocalDate.now());
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
         AtivoRequestTestDTO ativoRequest = new AtivoRequestTestDTO();
         ativoRequest.setCodigo(RandomStringUtils.random(8, true, true));
-        ativoRequest.setPreco(RandomStringUtils.random(8, false, true));
         ativoRequest.setTipoAtivo(TipoAtivo.RV.name());
         ativoRequest.setNome(RandomStringUtils.random(10, true, true));
+        ativoRequest.setDataEmissao(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        ativoRequest.setDataVencimento(LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE));
         return ativoRequest;
     }
 

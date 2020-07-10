@@ -13,12 +13,10 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
@@ -33,28 +31,29 @@ public class Ativo implements Serializable {
     @Id
     @NotEmpty(message = "Campo 'codigo' é obrigatório")
     private String codigo;
-    @Digits(integer = 15, fraction = 8, message = "Campo 'preco' inválido")
-    @NotNull(message = "Campo 'preco' é obrigatório")
-    private BigDecimal preco;
     @NotEmpty(message = "Campo 'nome' é obrigatório")
     private String nome;
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
     @Enumerated(EnumType.STRING)
     private TipoAtivo tipoAtivo;
-
-    public Ativo comCodigo(final String codigo) {
-        return new Ativo(codigo, this.preco, this.nome, this.tipoAtivo);
-    }
-
-    public Ativo comPreco(final BigDecimal preco) {
-        return new Ativo(this.codigo, preco.setScale(8, RoundingMode.HALF_DOWN), this.nome, this.tipoAtivo);
-    }
+    @NotNull(message = "Campo 'dataEmissao' é obrigatório")
+    private LocalDate dataEmissao;
+    @NotNull(message = "Campo 'dataVencimento' é obrigatório")
+    private LocalDate dataVencimento;
 
     public Ativo comNome(final String nome) {
-        return new Ativo(this.codigo, this.preco, nome, this.tipoAtivo);
+        return new Ativo(this.codigo, nome, this.tipoAtivo, this.dataEmissao, this.dataVencimento);
     }
 
     public Ativo comTipoAtivo(final TipoAtivo tipoAtivo) {
-        return new Ativo(this.codigo, this.preco, this.nome, tipoAtivo);
+        return new Ativo(this.codigo, this.nome, tipoAtivo, this.dataEmissao, this.dataVencimento);
+    }
+
+    public Ativo comDataVencimento(final LocalDate dataVencimento) {
+        return new Ativo(this.codigo, this.nome, this.tipoAtivo, this.dataEmissao, dataVencimento);
+    }
+
+    public Ativo comDataEmissao(final LocalDate dataEmissao) {
+        return new Ativo(this.codigo, this.nome, this.tipoAtivo, dataEmissao, this.dataVencimento);
     }
 }
