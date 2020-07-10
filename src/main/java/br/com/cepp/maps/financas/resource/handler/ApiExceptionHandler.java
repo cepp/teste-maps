@@ -96,6 +96,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(ValidacaoNegocioException.class)
+    public ResponseEntity<Object> handleValidacaoNegocioException(ValidacaoNegocioException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
         return ResponseEntity.status(httpStatus).body(message);
     }

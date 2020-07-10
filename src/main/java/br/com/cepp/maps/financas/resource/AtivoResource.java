@@ -119,7 +119,8 @@ public class AtivoResource {
     })
     public ResponseEntity<AtivoRequestDTO> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {
         final Ativo ativo = this.service.buscarPorCodigo(codigo);
-        final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getNome(), ativo.getTipoAtivo());
+        final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getNome(), ativo.getTipoAtivo(),
+                ativo.getDataEmissao(), ativo.getDataVencimento());
         return ResponseEntity.ok(requestDTO);
     }
 }

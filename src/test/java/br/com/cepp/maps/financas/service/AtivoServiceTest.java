@@ -6,6 +6,7 @@ import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.handler.AtivoJaExisteException;
 import br.com.cepp.maps.financas.resource.handler.AtivoNaoEncontradoException;
+import br.com.cepp.maps.financas.resource.handler.ValidacaoNegocioException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.validation.ConstraintViolationException;
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,28 +37,39 @@ class AtivoServiceTest extends AbstractDataTest {
     void incluirValidarRequest() {
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(null));
 
-        final AtivoRequestDTO ativoRequestInvalido = new AtivoRequestDTO(null, null, null);
+        final AtivoRequestDTO ativoRequestInvalido = new AtivoRequestDTO(null, null, null, null, null);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestInvalido));
 
+        final LocalDate dataEmissao = LocalDate.now();
+        final LocalDate dataVencimento = LocalDate.now();
+
         final AtivoRequestDTO ativoRequestCodigoNulo = new AtivoRequestDTO(null,
-                RandomStringUtils.random(8, true, true), TipoAtivo.RV);
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestCodigoNulo));
 
         final AtivoRequestDTO ativoRequestCodigoVazio = new AtivoRequestDTO(Strings.EMPTY,
-                RandomStringUtils.random(8, true, true), TipoAtivo.RV);
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestCodigoVazio));
 
         final AtivoRequestDTO ativoRequestNomeNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
-                null, TipoAtivo.RV);
+                null, TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestNomeNulo));
 
         final AtivoRequestDTO ativoRequestNomeVazio = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
-                Strings.EMPTY, TipoAtivo.RV);
+                Strings.EMPTY, TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestNomeVazio));
 
         final AtivoRequestDTO ativoRequestTipoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
-                RandomStringUtils.random(8, true, true), null);
+                RandomStringUtils.random(8, true, true), null, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestTipoNulo));
+
+        final AtivoRequestDTO ativoRequestEmissaoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, null, dataVencimento);
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestEmissaoNulo));
+
+        final AtivoRequestDTO ativoRequestVencimentoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, null);
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluir(ativoRequestVencimentoNulo));
     }
 
     @Test
@@ -65,6 +77,12 @@ class AtivoServiceTest extends AbstractDataTest {
         AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
         assertDoesNotThrow(() -> this.service.incluir(ativoRequestDTO));
         assertThrows(AtivoJaExisteException.class, () -> this.service.incluir(ativoRequestDTO));
+    }
+
+    @Test
+    void incluirDataEmissaoMaiorVencimento() {
+        AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO(LocalDate.now().plusDays(3));
+        assertThrows(ValidacaoNegocioException.class, () -> this.service.incluir(ativoRequestDTO));
     }
 
     @Test
@@ -87,23 +105,34 @@ class AtivoServiceTest extends AbstractDataTest {
 
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(null, codigo));
 
-        final AtivoRequestDTO ativoRequestInvalido = new AtivoRequestDTO(null, null, null);
+        final LocalDate dataEmissao = LocalDate.now();
+        final LocalDate dataVencimento = LocalDate.now();
+
+        final AtivoRequestDTO ativoRequestInvalido = new AtivoRequestDTO(null, null, null, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestInvalido, codigo));
 
-        final AtivoRequestDTO ativoRequestCodigoNulo = new AtivoRequestDTO(null, RandomStringUtils.random(8, true, true), TipoAtivo.RV);
+        final AtivoRequestDTO ativoRequestCodigoNulo = new AtivoRequestDTO(null, RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestCodigoNulo, codigo));
 
-        final AtivoRequestDTO ativoRequestCodigoVazio = new AtivoRequestDTO(Strings.EMPTY, RandomStringUtils.random(8, true, true), TipoAtivo.RV);
+        final AtivoRequestDTO ativoRequestCodigoVazio = new AtivoRequestDTO(Strings.EMPTY, RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestCodigoVazio, codigo));
 
-        final AtivoRequestDTO ativoRequestNomeNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), null, TipoAtivo.RV);
+        final AtivoRequestDTO ativoRequestNomeNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), null, TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestNomeNulo, codigo));
 
-        final AtivoRequestDTO ativoRequestNomeVazio = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), Strings.EMPTY, TipoAtivo.RV);
+        final AtivoRequestDTO ativoRequestNomeVazio = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), Strings.EMPTY, TipoAtivo.RV, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestNomeVazio, codigo));
 
-        final AtivoRequestDTO ativoRequestTipoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), RandomStringUtils.random(8, true, true), null);
+        final AtivoRequestDTO ativoRequestTipoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true), RandomStringUtils.random(8, true, true), null, dataEmissao, dataVencimento);
         assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestTipoNulo, codigo));
+
+        final AtivoRequestDTO ativoRequestEmissaoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, null, dataVencimento);
+        assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestEmissaoNulo, codigo));
+
+        final AtivoRequestDTO ativoRequestVencimentoNulo = new AtivoRequestDTO(RandomStringUtils.random(8, true, true),
+                RandomStringUtils.random(8, true, true), TipoAtivo.RV, dataEmissao, null);
+        assertThrows(ConstraintViolationException.class, () -> this.service.alterar(ativoRequestVencimentoNulo, codigo));
     }
 
     @Test

@@ -9,11 +9,10 @@ import lombok.ToString;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @ToString
@@ -28,13 +27,21 @@ public class AtivoRequestDTO implements Serializable {
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
     @Enumerated(EnumType.STRING)
     private final TipoAtivo tipoAtivo;
+    @NotNull(message = "Campo 'dataEmissao' é obrigatório")
+    private final LocalDate dataEmissao;
+    @NotNull(message = "Campo 'dataVencimento' é obrigatório")
+    private final LocalDate dataVencimento;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public AtivoRequestDTO(@JsonProperty(value = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
                            @JsonProperty(value = "nome") @NotEmpty(message = "Campo 'nome' é obrigatório") String nome,
-                           @JsonProperty(value = "tipoAtivo") @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo) {
+                           @JsonProperty(value = "tipoAtivo") @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo,
+                           @JsonProperty(value = "dataEmissao") @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate dataEmissao,
+                           @JsonProperty(value = "dataEmissao") @NotNull(message = "Campo 'dataVencimento' é obrigatório") LocalDate dataVencimento) {
         this.codigo = codigo;
         this.nome = nome;
         this.tipoAtivo = tipoAtivo;
+        this.dataEmissao = dataEmissao;
+        this.dataVencimento = dataVencimento;
     }
 }

@@ -5,6 +5,7 @@ import br.com.cepp.maps.financas.repository.AtivoRepository;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.handler.AtivoJaExisteException;
 import br.com.cepp.maps.financas.resource.handler.AtivoNaoEncontradoException;
+import br.com.cepp.maps.financas.resource.handler.ValidacaoNegocioException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Log4j2
 @Service
@@ -38,10 +40,11 @@ public class AtivoService {
     @Transactional
     public Ativo alterar(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO,
                          @NotEmpty(message = "Campo 'codigo é' obrigatório") String codigo) {
+        this.validarDatas(ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento());
         final Ativo ativoBD = this.buscarPorCodigo(codigo);
-        // TODO: criar métodos para definir as datas do objeto
         final Ativo ativoParaAtualizar = ativoBD.comNome(ativoRequestDTO.getNome())
-                .comTipoAtivo(ativoRequestDTO.getTipoAtivo());
+                .comTipoAtivo(ativoRequestDTO.getTipoAtivo()).comDataEmissao(ativoRequestDTO.getDataEmissao())
+                .comDataVencimento(ativoRequestDTO.getDataVencimento());
         return this.repository.save(ativoParaAtualizar);
     }
 
@@ -52,10 +55,15 @@ public class AtivoService {
     }
 
     private Ativo converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO) {
-//        return new Ativo(ativoRequestDTO.getCodigo(), null, ativoRequestDTO.getNome(),
-//                ativoRequestDTO.getTipoAtivo()).comPreco(ativoRequestDTO.getPreco());
-        // TODO: retornar o ativo com as datas do request
-        return null;
+        this.validarDatas(ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento());
+        return new Ativo(ativoRequestDTO.getCodigo(), ativoRequestDTO.getNome(), ativoRequestDTO.getTipoAtivo(),
+                ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento());
+    }
+
+    private void validarDatas(LocalDate dataEmissao, LocalDate dataVencimento) {
+        if(dataEmissao.compareTo(dataVencimento) > 0) {
+            throw new ValidacaoNegocioException("Data Emissão deve ser sempre anterior à Data Vencimento");
+        }
     }
 
     public Ativo buscarPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {

@@ -41,15 +41,19 @@ public class Ativo implements Serializable {
     @NotNull(message = "Campo 'dataVencimento' é obrigatório")
     private LocalDate dataVencimento;
 
-    public Ativo comCodigo(final String codigo) {
-        return new Ativo(codigo, this.nome, this.tipoAtivo, this.dataEmissao, this.dataVencimento);
-    }
-
     public Ativo comNome(final String nome) {
         return new Ativo(this.codigo, nome, this.tipoAtivo, this.dataEmissao, this.dataVencimento);
     }
 
     public Ativo comTipoAtivo(final TipoAtivo tipoAtivo) {
         return new Ativo(this.codigo, this.nome, tipoAtivo, this.dataEmissao, this.dataVencimento);
+    }
+
+    public Ativo comDataVencimento(final LocalDate dataVencimento) {
+        return new Ativo(this.codigo, this.nome, this.tipoAtivo, this.dataEmissao, dataVencimento);
+    }
+
+    public Ativo comDataEmissao(final LocalDate dataEmissao) {
+        return new Ativo(this.codigo, this.nome, this.tipoAtivo, dataEmissao, this.dataVencimento);
     }
 }
