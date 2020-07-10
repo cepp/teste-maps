@@ -3,6 +3,7 @@ package br.com.cepp.maps.financas;
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
+import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
@@ -84,5 +85,14 @@ public abstract class AbstractDataTest {
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
         movimentoRequestTestDTO.setData(data.format(DateTimeFormatter.ISO_DATE));
         return movimentoRequestTestDTO;
+    }
+
+    protected AtivoValorRequestTestDTO getAtivoValorRequestTestDTOMock() {
+        AtivoValorRequestTestDTO ativoRequestTestDTO = new AtivoValorRequestTestDTO();
+        ativoRequestTestDTO.setData(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(8, RoundingMode.DOWN);
+        ativoRequestTestDTO.setValor(String.valueOf(valor.doubleValue()));
+        ativoRequestTestDTO.setCodigoAtivo(RandomStringUtils.random(10, true, true));
+        return ativoRequestTestDTO;
     }
 }
