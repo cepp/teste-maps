@@ -3,6 +3,8 @@ package br.com.cepp.maps.financas;
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
+import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestDTO;
+import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
@@ -56,7 +58,7 @@ public abstract class AbstractDataTest {
         String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
         String nome = RandomStringUtils.random(10, true, true);
         LocalDate novaDataEmissao = dataEmissao == null ? LocalDate.now() : dataEmissao;
-        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo, novaDataEmissao, LocalDate.now());
+        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo, novaDataEmissao, LocalDate.now().plusDays(1));
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
@@ -84,5 +86,26 @@ public abstract class AbstractDataTest {
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
         movimentoRequestTestDTO.setData(data.format(DateTimeFormatter.ISO_DATE));
         return movimentoRequestTestDTO;
+    }
+
+    protected AtivoValorRequestTestDTO getAtivoValorRequestTestDTOMock() {
+        return this.getAtivoValorRequestTestDTOMock(RandomStringUtils.random(10, true, true));
+    }
+
+    protected AtivoValorRequestTestDTO getAtivoValorRequestTestDTOMock(String codigoAtivo) {
+        AtivoValorRequestTestDTO ativoRequestTestDTO = new AtivoValorRequestTestDTO();
+        ativoRequestTestDTO.setData(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(8, RoundingMode.DOWN);
+        ativoRequestTestDTO.setValor(String.valueOf(valor.doubleValue()));
+        ativoRequestTestDTO.setCodigoAtivo(codigoAtivo);
+        return ativoRequestTestDTO;
+    }
+
+    protected AtivoValorRequestDTO getAtivoValorRequestDTOMock(String codigo) {
+        return this.getAtivoValorRequestDTOMock(codigo, LocalDate.now());
+    }
+
+    protected AtivoValorRequestDTO getAtivoValorRequestDTOMock(String codigo, LocalDate data) {
+        return new AtivoValorRequestDTO(codigo, data, BigDecimal.TEN.setScale(8, RoundingMode.DOWN));
     }
 }

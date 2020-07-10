@@ -9,13 +9,16 @@ import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Getter
@@ -36,4 +39,11 @@ public class AtivoValor implements Serializable {
     @Digits(integer = 8, fraction = 8, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
     private BigDecimal valor;
+    @NotNull(message = "Campo 'ativo' é obrigatório")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Ativo ativo;
+
+    public AtivoValor comValor(BigDecimal valor) {
+        return new AtivoValor(this.id, this.data, valor.setScale(8, RoundingMode.DOWN), this.ativo);
+    }
 }
