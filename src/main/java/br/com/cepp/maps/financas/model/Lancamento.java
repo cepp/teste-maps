@@ -31,6 +31,8 @@ import java.time.LocalDate;
 @Entity
 @Immutable
 public class Lancamento implements Serializable {
+    private static final long serialVersionUID = -7782002581779012788L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,8 +40,8 @@ public class Lancamento implements Serializable {
     @Min(value = 1, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
     private BigDecimal valor;
-    @NotNull(message = "Campo 'data' é obrigatório")
-    private LocalDate data;
+    @NotNull(message = "Campo 'dataMovimento' é obrigatório")
+    private LocalDate dataMovimento;
     @NotEmpty(message = "Campo 'descricao' é obrigatório")
     private String descricao;
     @Enumerated(EnumType.STRING)

@@ -18,6 +18,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
@@ -38,8 +39,10 @@ public class ContaCorrente implements Serializable {
     private BigDecimal saldoConta;
     @NotEmpty(message = "Campo 'usuario' é obrigatório")
     private String codigoUsuario;
+    @NotNull(message = "Campo 'data' é obrigatório")
+    private LocalDate data;
 
     public ContaCorrente comSaldoAtualizado(BigDecimal saldoAtualizado) {
-        return new ContaCorrente(this.id, saldoAtualizado, this.codigoUsuario);
+        return new ContaCorrente(this.id, saldoAtualizado, this.codigoUsuario, this.data);
     }
 }

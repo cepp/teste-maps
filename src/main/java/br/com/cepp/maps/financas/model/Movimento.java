@@ -1,9 +1,6 @@
 package br.com.cepp.maps.financas.model;
 
 import br.com.cepp.maps.financas.model.dominio.TipoMovimento;
-import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -44,10 +41,8 @@ public class Movimento implements Serializable {
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Ativo ativo;
-    @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FinancasLocalDateDeserializer.DATE_FORMAT)
-    @NotNull(message = "Campo 'data' é obrigatório")
-    private LocalDate data;
+    @NotNull(message = "Campo 'dataMovimento' é obrigatório")
+    private LocalDate dataMovimento;
     @DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
     @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
     @NotNull(message = "Campo 'quantidade' é obrigatório")
