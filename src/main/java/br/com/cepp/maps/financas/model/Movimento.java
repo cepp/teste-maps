@@ -40,7 +40,7 @@ public class Movimento implements Serializable {
     private Long codigo;
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Ativo ativo;
+    private AtivoValor ativoValor;
     @NotNull(message = "Campo 'dataMovimento' é obrigatório")
     private LocalDate dataMovimento;
     @DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")

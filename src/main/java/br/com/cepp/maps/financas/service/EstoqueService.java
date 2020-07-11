@@ -34,10 +34,10 @@ public class EstoqueService {
 
     @Transactional
     public void atualizaEstoque(@Valid @NotNull(message = "Movimento é obrigatório") Movimento movimento) {
-        Optional<Estoque> optionalEstoque = this.repository.findByAtivo_CodigoAndDataPosicao(movimento.getAtivo().getCodigo(), movimento.getDataMovimento());
+        Optional<Estoque> optionalEstoque = this.repository.findByAtivo_CodigoAndDataPosicao(movimento.getAtivoValor().getAtivo().getCodigo(), movimento.getDataMovimento());
 
         final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.DOWN),
-                movimento.getAtivo(), movimento.getDataMovimento(), BigDecimal.ZERO.setScale(0, RoundingMode.DOWN)));
+                movimento.getAtivoValor().getAtivo(), movimento.getDataMovimento(), BigDecimal.ZERO.setScale(0, RoundingMode.DOWN)));
 
         final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento(), 2);
         final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento(), 0);

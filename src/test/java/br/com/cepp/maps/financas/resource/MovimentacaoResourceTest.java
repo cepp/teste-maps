@@ -1,12 +1,11 @@
 package br.com.cepp.maps.financas.resource;
 
-import br.com.cepp.maps.financas.model.Ativo;
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
-import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
 import br.com.cepp.maps.financas.service.AtivoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,11 +39,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void compra() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
+        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(codigo);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -71,11 +69,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void compraSaldoInsuficiente() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
+        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(codigo);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -91,11 +88,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void venda() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
+        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(codigo);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -111,11 +107,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consulta() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
+        final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(codigo);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -128,9 +123,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo"))
-                .queryParam("ativo", ativo.getCodigo())
-                .queryParam("dataPosicao", movimentoRequestTestDTO.getData())
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo/{ativo}/{dataPosicao}"), codigo, movimentoRequestTestDTO.getData())
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,15 +135,12 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaEstoqueNaoExiste() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final String localDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        final String localDate = super.getDataDiaUtil().format(DateTimeFormatter.ISO_DATE);
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo"))
-                .queryParam("ativo", ativo.getCodigo())
-                .queryParam("dataPosicao", localDate)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo/{ativo}/{dataPosicao}"), codigo, localDate)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -163,12 +153,11 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaPorData() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
-        assertNotNull(ativo);
+        final String codigo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RF, this.getDataDiaUtil());
 
-        final LocalDate dataPosicao = LocalDate.now();
-        final MovimentoRequestTestDTO movimentoVendaRV = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao);
+        final LocalDate dataPosicao = super.getDataDiaUtil();
+        final MovimentoRequestTestDTO movimentoVendaRV = super.getMovimentoRequestTestDTOMock(codigo, dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -181,7 +170,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final MovimentoRequestTestDTO movimentoCompraRV = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao, 1000);
+        final MovimentoRequestTestDTO movimentoCompraRV = super.getMovimentoRequestTestDTOMock(codigo, dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
@@ -193,10 +182,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final AtivoRequestDTO ativoFundoDTO = super.getAtivoRequestDTO(TipoAtivo.FUNDO);
-        final Ativo ativoFundo = this.ativoService.incluir(ativoFundoDTO);
-        assertNotNull(ativoFundo);
-        final MovimentoRequestTestDTO movimentoVendaFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao);
+        final String codigoFundo = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigoFundo, TipoAtivo.FUNDO, this.getDataDiaUtil());
+
+        final MovimentoRequestTestDTO movimentoVendaFundo = super.getMovimentoRequestTestDTOMock(codigoFundo, dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -209,7 +198,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final MovimentoRequestTestDTO movimentoCompraFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao, 1000);
+        final MovimentoRequestTestDTO movimentoCompraFundo = super.getMovimentoRequestTestDTOMock(codigoFundo, dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
@@ -221,10 +210,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final AtivoRequestDTO ativoRFDTO = super.getAtivoRequestDTO(TipoAtivo.RF);
-        final Ativo ativoRF = this.ativoService.incluir(ativoRFDTO);
-        assertNotNull(ativoRF);
-        final MovimentoRequestTestDTO movimentoRF = super.getMovimentoRequestTestDTOMock(ativoRF.getCodigo(), dataPosicao);
+        final String codigoRF = RandomStringUtils.random(10, true, true);
+        super.iniciarAtivoValor(codigoRF, TipoAtivo.RF, this.getDataDiaUtil());
+        final MovimentoRequestTestDTO movimentoRF = super.getMovimentoRequestTestDTOMock(codigoRF, dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -237,7 +225,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final MovimentoRequestTestDTO movimentoCompraRF = super.getMovimentoRequestTestDTOMock(ativoRF.getCodigo(), dataPosicao, 1000);
+        final MovimentoRequestTestDTO movimentoCompraRF = super.getMovimentoRequestTestDTOMock(codigoRF, dataPosicao, 1000);
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_COMPRA))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
@@ -249,8 +237,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        MvcResult result = assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
-                .queryParam("dataPosicao", movimentoCompraRF.getData())
+        MvcResult result = assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("{dataPosicao}"), dataPosicao.format(DateTimeFormatter.ISO_DATE))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -266,10 +253,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaPorDataEstoqueNaoExiste() {
-        final String localDate = LocalDate.now().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
+        final String localDate = super.getDataDiaUtil().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
-                .queryParam("dataPosicao", localDate)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("{dataPosicao}"), localDate)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)

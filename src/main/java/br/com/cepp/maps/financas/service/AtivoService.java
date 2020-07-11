@@ -5,6 +5,7 @@ import br.com.cepp.maps.financas.repository.AtivoRepository;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.handler.AtivoJaExisteException;
 import br.com.cepp.maps.financas.resource.handler.AtivoNaoEncontradoException;
+import br.com.cepp.maps.financas.resource.handler.AtivoUtilizadoException;
 import br.com.cepp.maps.financas.resource.handler.ValidacaoNegocioException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Log4j2
 @Service
@@ -51,13 +53,18 @@ public class AtivoService {
     @Transactional
     public void remover(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
         final Ativo ativoBD = this.buscarPorCodigo(codigo);
+
+        if(this.repository.existsByCodigoAndPosicoesIsNotEmpty(codigo)) {
+            throw new AtivoUtilizadoException(codigo);
+        }
+
         this.repository.delete(ativoBD);
     }
 
     private Ativo converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO) {
         this.validarDatas(ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento());
         return new Ativo(ativoRequestDTO.getCodigo(), ativoRequestDTO.getNome(), ativoRequestDTO.getTipoAtivo(),
-                ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento());
+                ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento(), new ArrayList<>());
     }
 
     private void validarDatas(LocalDate dataEmissao, LocalDate dataVencimento) {
@@ -68,5 +75,9 @@ public class AtivoService {
 
     public Ativo buscarPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
         return this.repository.findById(codigo).orElseThrow(() -> new AtivoNaoEncontradoException(codigo));
+    }
+
+    public boolean existsAtivoPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
+        return this.repository.existsByCodigo(codigo);
     }
 }

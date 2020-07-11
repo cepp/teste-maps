@@ -14,18 +14,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = {"movimentos"})
+@ToString(exclude = {"movimentos"})
 @Entity
 @Immutable
 public class AtivoValor implements Serializable {
@@ -42,8 +43,7 @@ public class AtivoValor implements Serializable {
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
     private Ativo ativo;
+    @OneToMany(mappedBy = "ativoValor", fetch = FetchType.LAZY)
+    private List<Movimento> movimentos;
 
-    public AtivoValor comValor(BigDecimal valor) {
-        return new AtivoValor(this.id, this.data, valor.setScale(8, RoundingMode.DOWN), this.ativo);
-    }
 }

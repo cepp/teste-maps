@@ -33,7 +33,7 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
     void buscarContaCorrentePorCodigoUsuario() {
         final LocalDate data = LocalDate.now();
         if(!this.service.existePosicaoPorUsuarioData(CODIGO_USUARIO_GLOBAL, data)) {
-            final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirContaCorrente(CODIGO_USUARIO_GLOBAL, data));
+            final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirPosicaoContaCorrente(CODIGO_USUARIO_GLOBAL, data));
             assertNotNull(contaCorrente);
         }
 
@@ -103,22 +103,60 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
     void incluirContaCorrente() {
         final String usuario = RandomStringUtils.random(30, true, true);
         final LocalDate data = LocalDate.now();
-        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirContaCorrente(usuario, data));
+        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirPosicaoContaCorrente(usuario, data));
         assertNotNull(contaCorrente);
 
         final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, data));
         assertNotNull(contaCorrenteBD);
         assertEquals(contaCorrente, contaCorrenteBD);
 
-        assertThrows(ContaPosicaoJaExisteException.class, () -> this.service.incluirContaCorrente(usuario, data));
+        assertThrows(ContaPosicaoJaExisteException.class, () -> this.service.incluirPosicaoContaCorrente(usuario, data));
+    }
+
+    @Test
+    void incluirContaCorrenteDataFutura() {
+        final String usuario = RandomStringUtils.random(30, true, true);
+        final LocalDate dataPrimeiroLancamento = LocalDate.now().plusDays(2);
+        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirPosicaoContaCorrente(usuario, dataPrimeiroLancamento));
+        assertNotNull(contaCorrente);
+        assertEquals(BigDecimal.ZERO, contaCorrente.getSaldoConta());
+
+        final ContaCorrente primeiraAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(usuario,
+                BigDecimal.TEN, TipoNatureza.CREDITO, dataPrimeiroLancamento));
+        assertNotNull(primeiraAtualizacao);
+        assertEquals(BigDecimal.TEN, primeiraAtualizacao.getSaldoConta());
+
+        final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPrimeiroLancamento));
+        assertNotNull(contaCorrenteBD);
+        assertEquals(primeiraAtualizacao, contaCorrenteBD);
+        assertEquals(BigDecimal.TEN, contaCorrenteBD.getSaldoConta());
+
+        final LocalDate dataSegunadoLancamento = dataPrimeiroLancamento.plusDays(2);
+        final ContaCorrente segundaAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(usuario, BigDecimal.TEN,
+                TipoNatureza.CREDITO, dataSegunadoLancamento));
+        assertNotNull(segundaAtualizacao);
+        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN), segundaAtualizacao.getSaldoConta());
+
+        final LocalDate dataPosicaoAtual = LocalDate.now();
+        final ContaCorrente posicaoAtual = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPosicaoAtual));
+        assertNotNull(posicaoAtual);
+        assertEquals(BigDecimal.ZERO, posicaoAtual.getSaldoConta());
+
+        final ContaCorrente posicaoPrimeiroLancamento = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPrimeiroLancamento));
+        assertNotNull(posicaoPrimeiroLancamento);
+        assertEquals(BigDecimal.TEN, posicaoPrimeiroLancamento.getSaldoConta());
+
+        final ContaCorrente posicaoSegundoLancamento = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataSegunadoLancamento));
+        assertNotNull(posicaoSegundoLancamento);
+        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN), posicaoSegundoLancamento.getSaldoConta());
     }
 
     @Test
     void incluirContaCorrenteValidarCodigoUsuario() {
         final LocalDate data = LocalDate.now();
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(null, data));
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(Strings.EMPTY, data));
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(CODIGO_USUARIO_GLOBAL, null));
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirPosicaoContaCorrente(null, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirPosicaoContaCorrente(Strings.EMPTY, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirPosicaoContaCorrente(CODIGO_USUARIO_GLOBAL, null));
     }
 
     @Test

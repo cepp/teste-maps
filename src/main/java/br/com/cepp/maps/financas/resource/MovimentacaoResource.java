@@ -18,11 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -88,7 +88,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(path = "/ativo", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/ativo/{ativo}/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -102,14 +102,14 @@ public class MovimentacaoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<EstoqueResponseDTO> consulta(@NotEmpty(message = "Campo 'ativo' é obrigatório") @RequestParam(name = "ativo") final String ativo,
-                                                       @NotNull(message = "Campo 'dataPosicao' é obrigatório") @RequestParam(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
+    public ResponseEntity<EstoqueResponseDTO> consulta(@NotEmpty(message = "Campo 'ativo' é obrigatório") @PathVariable(name = "ativo") final String ativo,
+                                                       @NotNull(message = "Campo 'dataPosicao' é obrigatório") @PathVariable(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
         Estoque estoque = this.service.buscarPosicaoPorCodigoEData(ativo, dataPosicao);
         EstoqueResponseDTO estoqueResponseDTO = this.converterEntidadeParaDTO(estoque);
         return ResponseEntity.ok(estoqueResponseDTO);
     }
 
-    @GetMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -123,7 +123,7 @@ public class MovimentacaoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<List<EstoqueResponseDTO>> consultaPorData(@NotNull(message = "Campo 'dataPosicao' é obrigatório") @RequestParam(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
+    public ResponseEntity<List<EstoqueResponseDTO>> consultaPorData(@NotNull(message = "Campo 'dataPosicao' é obrigatório") @PathVariable(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
         return ResponseEntity.ok(this.service.buscarPorDataPosicao(dataPosicao));
     }
 

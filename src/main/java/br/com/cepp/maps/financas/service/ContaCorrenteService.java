@@ -36,7 +36,7 @@ public class ContaCorrenteService {
                                         @NotNull(message = "Campo 'natureza' é obrigatório") final TipoNatureza natureza,
                                         @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
         final ContaCorrente contaCorrente = this.buscarPorCodigoUsuario(codigoUsuario, dataMovimento)
-                .orElseGet(() -> this.incluirContaCorrente(codigoUsuario, dataMovimento));
+                .orElseGet(() -> this.incluirPosicaoContaCorrente(codigoUsuario, dataMovimento));
 
         if(contaCorrente.getSaldoConta().compareTo(valor) < 0 && natureza.isDebito()) {
             throw new SaldoInsuficienteException();
@@ -49,14 +49,24 @@ public class ContaCorrenteService {
     }
 
     @Transactional
-    public ContaCorrente incluirContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario,
-                                              @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
+    public ContaCorrente incluirPosicaoContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario,
+                                                     @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
         if(this.repository.existsByCodigoUsuarioAndData(codigoUsuario, dataMovimento)) {
             throw new ContaPosicaoJaExisteException(codigoUsuario, dataMovimento);
         }
 
-        final ContaCorrente contaCorrente = new ContaCorrente(null, BigDecimal.ZERO.setScale(0, RoundingMode.DOWN),
-                codigoUsuario, dataMovimento);
+        BigDecimal saldoAnterior = BigDecimal.ZERO.setScale(0, RoundingMode.DOWN);
+        final LocalDate dataInicial = LocalDate.now();
+        if(dataInicial.compareTo(dataMovimento) != 0) {
+            if (!this.repository.existsByCodigoUsuario(codigoUsuario)) {
+                final ContaCorrente posicaoInicial = new ContaCorrente(null, saldoAnterior, codigoUsuario, dataInicial);
+                this.repository.save(posicaoInicial);
+            }
+
+            saldoAnterior = this.buscarSaldoAnteriorPorUsuarioEData(codigoUsuario, dataMovimento);
+        }
+
+        final ContaCorrente contaCorrente = new ContaCorrente(null, saldoAnterior, codigoUsuario, dataMovimento);
         return this.repository.save(contaCorrente);
     }
 
@@ -81,5 +91,11 @@ public class ContaCorrenteService {
     public boolean existePosicaoPorUsuarioData(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
                                                @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
         return this.repository.existsByCodigoUsuarioAndData(codigoUsuario, data);
+    }
+
+    public BigDecimal buscarSaldoAnteriorPorUsuarioEData(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
+                                                         @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
+        Optional<ContaCorrente> contaCorrente = this.repository.getFirstByCodigoUsuarioAndDataLessThanOrderByDataDesc(codigoUsuario, data);
+        return contaCorrente.isPresent() ? contaCorrente.get().getSaldoConta() : BigDecimal.ZERO;
     }
 }
