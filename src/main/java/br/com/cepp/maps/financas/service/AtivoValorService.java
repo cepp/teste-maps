@@ -50,8 +50,13 @@ public class AtivoValorService {
     }
 
     public AtivoValor buscarPorAtivoEData(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatório") final String codigoAtivo,
-                                                    @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
+                                          @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
         return this.repository.findByAtivo_CodigoAndData(codigoAtivo, data)
                 .orElseThrow(() -> new AtivoValorNaoEncontradoException(codigoAtivo, data));
+    }
+
+    public boolean existsPorAtivoEData(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatório") final String codigoAtivo,
+                                       @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
+        return this.repository.existsAtivoValorByAtivo_CodigoAndData(codigoAtivo, data);
     }
 }

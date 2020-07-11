@@ -69,4 +69,8 @@ public class AtivoService {
     public Ativo buscarPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
         return this.repository.findById(codigo).orElseThrow(() -> new AtivoNaoEncontradoException(codigo));
     }
+
+    public boolean existsAtivoPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
+        return this.repository.existsByCodigo(codigo);
+    }
 }

@@ -10,9 +10,12 @@ import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
+import br.com.cepp.maps.financas.service.AtivoService;
+import br.com.cepp.maps.financas.service.AtivoValorService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,11 +24,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public abstract class AbstractDataTest {
+    @Autowired
+    private AtivoValorService ativoValorService;
+    @Autowired
+    private AtivoService ativoService;
+
     protected LancamentoRequestTestDTO getLancamentoRequestRestMock() {
         LancamentoRequestTestDTO lancamento = new LancamentoRequestTestDTO();
         lancamento.setData(LocalDateTime.now().format(DateTimeFormatter.ofPattern(FinancasLocalDateDeserializer.DATE_FORMAT)));
         lancamento.setDescricao(RandomStringUtils.random(10, true, false));
-        lancamento.setValor(RandomStringUtils.random(2, false, true));
+        lancamento.setValor(String.valueOf(RandomUtils.nextInt(1, 999999)));
         return lancamento;
     }
 
@@ -129,5 +137,25 @@ public abstract class AbstractDataTest {
 
     protected LocalDate getDataDiaUtil() {
         return LocalDate.of(2020, 7, 10);
+    }
+
+
+    protected AtivoValorRequestDTO getAtivoValorRequestDTO(String codigo, final LocalDate data) {
+        final BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(8, RoundingMode.DOWN);
+        return new AtivoValorRequestDTO(codigo, data, valor);
+    }
+
+    protected void iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data) {
+        if(!this.ativoService.existsAtivoPorCodigo(codigo)) {
+            final LocalDate dataEmissao = this.getDataDiaUtil();
+            final LocalDate dataVencimento = dataEmissao.plusDays(4);
+            final AtivoRequestDTO ativo = this.getAtivoRequestDTO(codigo, tipoAtivo, dataEmissao, dataVencimento);
+            this.ativoService.incluir(ativo);
+        }
+
+        if(!this.ativoValorService.existsPorAtivoEData(codigo, data)) {
+            final AtivoValorRequestDTO ativoValorRequestDTO = this.getAtivoValorRequestDTO(codigo, data);
+            this.ativoValorService.incluir(ativoValorRequestDTO);
+        }
     }
 }

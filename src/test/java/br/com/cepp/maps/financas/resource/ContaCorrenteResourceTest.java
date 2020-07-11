@@ -200,7 +200,6 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
     @Test
     void debito() {
         final LancamentoRequestTestDTO lancamentoRequestCredito = super.getLancamentoRequestRestMock();
-        lancamentoRequestCredito.setValor(RandomStringUtils.random(4, false, true));
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_CREDITO))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -214,6 +213,7 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
                 .andReturn());
 
         final LancamentoRequestTestDTO lancamentoRequestDebito = super.getLancamentoRequestRestMock();
+        lancamentoRequestDebito.setValor(lancamentoRequestCredito.getValor());
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat("debito"))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())

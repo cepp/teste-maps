@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AtivoRepository extends JpaRepository<Ativo, String> {
+    boolean existsByCodigo(String codigo);
 }
