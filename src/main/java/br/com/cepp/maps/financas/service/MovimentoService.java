@@ -8,6 +8,8 @@ import br.com.cepp.maps.financas.model.dominio.TipoNatureza;
 import br.com.cepp.maps.financas.repository.MovimentoRepository;
 import br.com.cepp.maps.financas.resource.dto.EstoqueResponseDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
+import br.com.cepp.maps.financas.resource.handler.AtivoPeriodoInvalidoException;
+import br.com.cepp.maps.financas.resource.handler.MovimentoFinalSemanaException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,14 +73,27 @@ public class MovimentoService {
                                                @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento) {
         final Ativo ativo = this.ativoService.buscarPorCodigo(requestDTO.getAtivo());
 
+        this.validarDataMovimento(requestDTO, ativo);
+
         // TODO: buscar valor do ativo pela data
 //        final BigDecimal valor = ativo.getPreco()
 //                .multiply(requestDTO.getQuantidade())
 //                .setScale(0, RoundingMode.DOWN);
-        final BigDecimal valor = BigDecimal.ZERO;
+        final BigDecimal valor = BigDecimal.TEN;
 
         return new Movimento(null, ativo, requestDTO.getData(), requestDTO.getQuantidade(), valor,
                 tipoMovimento);
+    }
+
+    private void validarDataMovimento(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
+                                      @Valid @NotNull(message = "Ativo é obrigatório") Ativo ativo) {
+        if(DayOfWeek.SATURDAY.equals(requestDTO.getData().getDayOfWeek()) || DayOfWeek.SUNDAY.equals(requestDTO.getData().getDayOfWeek())) {
+            throw new MovimentoFinalSemanaException();
+        }
+
+        if(requestDTO.getData().compareTo(ativo.getDataEmissao()) < 0 || requestDTO.getData().compareTo(ativo.getDataVencimento()) > 0) {
+            throw new AtivoPeriodoInvalidoException(requestDTO.getData(), ativo.getCodigo());
+        }
     }
 
     public Estoque buscarPosicaoPorCodigoEData(@NotEmpty(message = "Campo 'ativo' é obrigatório") String codigo,

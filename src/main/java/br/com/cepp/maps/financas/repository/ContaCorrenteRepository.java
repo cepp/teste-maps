@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface ContaCorrenteRepository extends JpaRepository<ContaCorrente, Long> {
     Optional<ContaCorrente> findByCodigoUsuarioAndData(String codigoUsuario, LocalDate data);
     boolean existsByCodigoUsuarioAndData(String codigoUsuario, LocalDate data);
+    boolean existsByCodigoUsuario(String codigoUsuario);
+    Optional<ContaCorrente> getFirstByCodigoUsuarioAndDataLessThanOrderByDataDesc(String codigoUsuario, LocalDate data);
 }

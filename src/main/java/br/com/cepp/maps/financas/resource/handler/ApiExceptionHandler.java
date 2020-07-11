@@ -13,7 +13,6 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolation;
@@ -54,13 +53,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, erros.toString(), headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex,
-                                                                     HttpHeaders headers, HttpStatus status,
-                                                                     WebRequest request) {
-        return super.handleExceptionInternal(ex, "Request incompleto", headers, status, request);
-    }
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> constraintViolationException(ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
@@ -77,7 +69,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    protected ResponseEntity<Object> missingRequestHeaderException(MissingRequestHeaderException ex) {
+    protected ResponseEntity<Object> missingRequestHeaderException() {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, "Header incompleto, está faltando uma informação");
     }
 
@@ -98,6 +90,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ValidacaoNegocioException.class)
     public ResponseEntity<Object> handleValidacaoNegocioException(ValidacaoNegocioException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(AtivoPeriodoInvalidoException.class)
+    public ResponseEntity<Object> handleAtivoPeriodoInvalidoException(AtivoPeriodoInvalidoException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(MovimentoFinalSemanaException.class)
+    public ResponseEntity<Object> handleMoviemntoFinalSemanaException(MovimentoFinalSemanaException ex) {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 

@@ -40,8 +40,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void compra() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
         final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
@@ -71,8 +72,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void compraSaldoInsuficiente() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
         final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
@@ -91,8 +93,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void venda() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
         final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
@@ -111,8 +114,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consulta() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
         final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo());
@@ -142,11 +146,12 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaEstoqueNaoExiste() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
-        final String localDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        final String localDate = super.getDataDiaUtil().format(DateTimeFormatter.ISO_DATE);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo"))
                 .queryParam("ativo", ativo.getCodigo())
@@ -163,11 +168,12 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaPorData() {
-        final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
-        final Ativo ativo = this.ativoService.incluir(ativoRequestDTO);
+        final LocalDate dataEmissao = super.getDataDiaUtil();
+        final LocalDate dataVencimento = dataEmissao.plusDays(4);
+        Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento)));
         assertNotNull(ativo);
 
-        final LocalDate dataPosicao = LocalDate.now();
+        final LocalDate dataPosicao = super.getDataDiaUtil();
         final MovimentoRequestTestDTO movimentoVendaRV = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(), dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
@@ -193,9 +199,9 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final AtivoRequestDTO ativoFundoDTO = super.getAtivoRequestDTO(TipoAtivo.FUNDO);
-        final Ativo ativoFundo = this.ativoService.incluir(ativoFundoDTO);
+        final Ativo ativoFundo = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento, TipoAtivo.FUNDO)));
         assertNotNull(ativoFundo);
+
         final MovimentoRequestTestDTO movimentoVendaFundo = super.getMovimentoRequestTestDTOMock(ativoFundo.getCodigo(), dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1.concat(END_POINT_VENDA))
@@ -221,8 +227,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        final AtivoRequestDTO ativoRFDTO = super.getAtivoRequestDTO(TipoAtivo.RF);
-        final Ativo ativoRF = this.ativoService.incluir(ativoRFDTO);
+        final Ativo ativoRF = assertDoesNotThrow(() -> this.ativoService.incluir(super.getAtivoRequestDTO(dataEmissao, dataVencimento, TipoAtivo.RF)));
         assertNotNull(ativoRF);
         final MovimentoRequestTestDTO movimentoRF = super.getMovimentoRequestTestDTOMock(ativoRF.getCodigo(), dataPosicao);
 
@@ -266,7 +271,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaPorDataEstoqueNaoExiste() {
-        final String localDate = LocalDate.now().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
+        final String localDate = super.getDataDiaUtil().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
                 .queryParam("dataPosicao", localDate)

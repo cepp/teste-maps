@@ -7,6 +7,7 @@ import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestTestDTO;
+import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -54,11 +55,23 @@ public abstract class AbstractDataTest {
         return this.getAtivoRequestDTO(null, TipoAtivo.RV, dataEmissao);
     }
 
+    protected AtivoRequestDTO getAtivoRequestDTO(LocalDate dataEmissao, LocalDate dataVencimento) {
+        return this.getAtivoRequestDTO(null, TipoAtivo.RV, dataEmissao, dataVencimento);
+    }
+
+    protected AtivoRequestDTO getAtivoRequestDTO(LocalDate dataEmissao, LocalDate dataVencimento, TipoAtivo tipoAtivo) {
+        return this.getAtivoRequestDTO(null, tipoAtivo, dataEmissao, dataVencimento);
+    }
+
     protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo, LocalDate dataEmissao) {
+        return this.getAtivoRequestDTO(codigo, tipoAtivo, dataEmissao, LocalDate.now().plusDays(1));
+    }
+
+    protected AtivoRequestDTO getAtivoRequestDTO(String codigo, TipoAtivo tipoAtivo, LocalDate dataEmissao, LocalDate dataVencimento) {
         String codigoAtivo = Strings.isEmpty(codigo) ? RandomStringUtils.random(8, true, true) : codigo;
         String nome = RandomStringUtils.random(10, true, true);
         LocalDate novaDataEmissao = dataEmissao == null ? LocalDate.now() : dataEmissao;
-        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo, novaDataEmissao, LocalDate.now().plusDays(1));
+        return new AtivoRequestDTO(codigoAtivo, nome, tipoAtivo, novaDataEmissao, dataVencimento);
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
@@ -72,7 +85,7 @@ public abstract class AbstractDataTest {
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo) {
-        return this.getMovimentoRequestTestDTOMock(ativo, LocalDate.now());
+        return this.getMovimentoRequestTestDTOMock(ativo, this.getDataDiaUtil());
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data) {
@@ -107,5 +120,14 @@ public abstract class AbstractDataTest {
 
     protected AtivoValorRequestDTO getAtivoValorRequestDTOMock(String codigo, LocalDate data) {
         return new AtivoValorRequestDTO(codigo, data, BigDecimal.TEN.setScale(8, RoundingMode.DOWN));
+    }
+
+    protected MovimentoRequestDTO getMovimentoRequestDTOMock(String codigo, LocalDate dataAnteriorEmissao) {
+        BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.DOWN);
+        return new MovimentoRequestDTO(codigo, dataAnteriorEmissao, quantidade);
+    }
+
+    protected LocalDate getDataDiaUtil() {
+        return LocalDate.of(2020, 7, 10);
     }
 }
