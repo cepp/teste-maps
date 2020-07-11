@@ -48,7 +48,7 @@ public class MovimentacaoResource {
         this.service = service;
     }
 
-    @PostMapping(path = "/compra", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/compra", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Compra de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -68,7 +68,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @PostMapping(path = "/venda", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/venda", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Venda de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -88,7 +88,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(path = "/ativo/{ativo}/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/ativo/{ativo}/{dataPosicao}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -109,7 +109,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(estoqueResponseDTO);
     }
 
-    @GetMapping(path = "/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/{dataPosicao}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,

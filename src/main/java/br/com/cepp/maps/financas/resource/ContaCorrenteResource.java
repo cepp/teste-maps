@@ -18,11 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -30,6 +30,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Log4j2
@@ -50,7 +51,7 @@ public class ContaCorrenteResource {
         this.lancamentoService = lancamentoService;
     }
 
-    @PostMapping(path = "/credito", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/credito", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Lançamento de Crédito", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -70,7 +71,7 @@ public class ContaCorrenteResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @PostMapping(path = "/debito", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/debito", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Lançamento de Débito", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -90,7 +91,7 @@ public class ContaCorrenteResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(path="/{codigoUsuario}/{data}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path="/saldo", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta Saldo da Conta", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -104,9 +105,8 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> consulta(@NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = HEADER_CODIGO_USUARIO) final String codigoUsuario,
-                                           @NotNull(message = "Campo 'data' é obrigatorio") @PathVariable(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
-        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(codigoUsuario, data);
+    public ResponseEntity<String> consulta(@NotNull(message = "Campo 'data' é obrigatorio") @RequestParam(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
+        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, data);
         return ResponseEntity.ok(contaCorrente.getSaldoConta().toString());
     }
 }

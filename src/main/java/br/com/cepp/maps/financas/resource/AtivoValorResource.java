@@ -43,7 +43,7 @@ public class AtivoValorResource {
         this.service = service;
     }
 
-    @PostMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Incluir Valor Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -63,7 +63,7 @@ public class AtivoValorResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @DeleteMapping(produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @DeleteMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Remover Valor Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
