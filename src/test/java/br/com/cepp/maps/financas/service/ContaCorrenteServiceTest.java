@@ -3,8 +3,8 @@ package br.com.cepp.maps.financas.service;
 import br.com.cepp.maps.financas.AbstractDataTest;
 import br.com.cepp.maps.financas.model.ContaCorrente;
 import br.com.cepp.maps.financas.model.dominio.TipoNatureza;
-import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.resource.handler.ContaNaoEncontradaException;
+import br.com.cepp.maps.financas.resource.handler.ContaPosicaoJaExisteException;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -16,7 +16,7 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static br.com.cepp.maps.financas.config.AppDataConfig.CODIGO_USUARIO_GLOBAL;
+import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,170 +31,106 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
 
     @Test
     void buscarContaCorrentePorCodigoUsuario() {
-        ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
-        assertNotNull(contaCorrente);
+        final LocalDate data = LocalDate.now();
+        if(!this.service.existePosicaoPorUsuarioData(CODIGO_USUARIO_GLOBAL, data)) {
+            final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirContaCorrente(CODIGO_USUARIO_GLOBAL, data));
+            assertNotNull(contaCorrente);
+        }
+
+        ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, data));
+        assertNotNull(contaCorrenteBD);
     }
 
     @Test
     void buscarContaCorrentePorCodigoUsuarioNaoExiste() {
         final String usuario = RandomStringUtils.random(10, true, false);
-        assertThrows(ContaNaoEncontradaException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(usuario));
+        final LocalDate data = LocalDate.now();
+        assertThrows(ContaNaoEncontradaException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, data));
     }
 
     @Test
     void buscarContaCorrentePorCodigoUsuarioValidaCodigoUsuario() {
-        assertThrows(ConstraintViolationException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(null));
-        assertThrows(ConstraintViolationException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(Strings.EMPTY));
+        final LocalDate data = LocalDate.now();
+        assertThrows(ConstraintViolationException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(null, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(Strings.EMPTY, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, null));
     }
 
     @Test
     void atualizarSaldo() {
-        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
-        assertNotNull(contaCorrente);
+        final LocalDate data = LocalDate.now();
+        final ContaCorrente primeiraAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, TipoNatureza.CREDITO, data));
+        assertNotNull(primeiraAtualizacao);
 
-        final ContaCorrente contaCorrenteAtualizada = assertDoesNotThrow(() -> this.service.atualizarSaldo(contaCorrente,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
-        assertNotNull(contaCorrenteAtualizada);
-        assertTrue(contaCorrenteAtualizada.getSaldoConta().compareTo(contaCorrente.getSaldoConta()) > 0);
-        assertEquals(contaCorrenteAtualizada.getSaldoConta(), contaCorrente.getSaldoConta().add(BigDecimal.TEN));
+        final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, data));
+        assertNotNull(contaCorrenteBD);
+        assertEquals(contaCorrenteBD.getData(), primeiraAtualizacao.getData());
+        assertEquals(contaCorrenteBD.getSaldoConta(), primeiraAtualizacao.getSaldoConta());
+
+        final ContaCorrente segundaAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, TipoNatureza.CREDITO, data));
+        assertNotNull(segundaAtualizacao);
+        assertEquals(contaCorrenteBD.getSaldoConta().add(BigDecimal.TEN), segundaAtualizacao.getSaldoConta());
     }
 
     @Test
     void atualizarSaldoValidarContaCorrente() {
+        final LocalDate data = LocalDate.now();
         assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(null,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+                BigDecimal.TEN, TipoNatureza.CREDITO, data));
 
-        final ContaCorrente contaCorrenteInvalida = new ContaCorrente(null, null, null);
-        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(contaCorrenteInvalida,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL,
+                null, TipoNatureza.CREDITO, data));
 
-        final ContaCorrente contaCorrenteSaldoNulo = new ContaCorrente(null, null, CODIGO_USUARIO_GLOBAL);
-        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(contaCorrenteSaldoNulo,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, null, data));
 
-        final ContaCorrente contaCorrenteSaldoInvalido = new ContaCorrente(null, BigDecimal.TEN.negate(), null);
-        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(contaCorrenteSaldoInvalido,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
-
-        final ContaCorrente contaCorrenteUsuarioNulo = new ContaCorrente(null, BigDecimal.TEN, null);
-        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(contaCorrenteUsuarioNulo,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
-
-        final ContaCorrente contaCorrenteUsuarioVazio = new ContaCorrente(null, BigDecimal.TEN, Strings.EMPTY);
-        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(contaCorrenteUsuarioVazio,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+        assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL,
+                BigDecimal.TEN, TipoNatureza.CREDITO, null));
     }
 
     @Test
     void atualizarSaldoValidarSaldoInsuficiente() {
-        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
-        assertNotNull(contaCorrente);
-
         final BigDecimal valor = BigDecimal.valueOf(20000000);
+        final LocalDate data = LocalDate.now();
 
-        assertThrows(SaldoInsuficienteException.class, () -> this.service.atualizarSaldo(contaCorrente, valor,
-                TipoNatureza.DEBITO));
+        assertThrows(SaldoInsuficienteException.class, () -> this.service.atualizarSaldo(CODIGO_USUARIO_GLOBAL, valor,
+                TipoNatureza.DEBITO, data));
     }
 
     @Test
     void incluirContaCorrente() {
         final String usuario = RandomStringUtils.random(30, true, true);
-        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirContaCorrente(usuario));
+        final LocalDate data = LocalDate.now();
+        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirContaCorrente(usuario, data));
         assertNotNull(contaCorrente);
 
-        final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario));
+        final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, data));
         assertNotNull(contaCorrenteBD);
-
         assertEquals(contaCorrente, contaCorrenteBD);
+
+        assertThrows(ContaPosicaoJaExisteException.class, () -> this.service.incluirContaCorrente(usuario, data));
     }
 
     @Test
     void incluirContaCorrenteValidarCodigoUsuario() {
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(null));
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(Strings.EMPTY));
-    }
-
-    @Test
-    void incluirCredito() {
-        LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock();
-        assertDoesNotThrow(() -> this.service.incluirCredito(lancamentoRequestDTO, CODIGO_USUARIO_GLOBAL));
-    }
-
-    @Test
-    void incluirCreditoValidarRequestDTO() {
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirCredito(null, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTOValorInvalido = new LancamentoRequestDTO(null,
-                RandomStringUtils.random(10, true, true), LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirCredito(requestDTOValorInvalido, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODescricaoNula = new LancamentoRequestDTO(null,
-                null, LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirCredito(requestDTODescricaoNula, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODescricaoVazia = new LancamentoRequestDTO(null,
-                Strings.EMPTY, LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirCredito(requestDTODescricaoVazia, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODataNula = new LancamentoRequestDTO(null,
-                RandomStringUtils.random(10, true, true), null);
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirCredito(requestDTODataNula, CODIGO_USUARIO_GLOBAL));
-    }
-
-    @Test
-    void incluirCreditoContaNaoExiste() {
-        final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock();
-        final String usuario = RandomStringUtils.random(10, true, true);
-        assertThrows(ContaNaoEncontradaException.class, () -> this.service.incluirCredito(lancamentoRequestDTO, usuario));
-    }
-
-    @Test
-    void incluirDebito() {
-        LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock(BigDecimal.ONE);
-        assertDoesNotThrow(() -> this.service.incluirDebito(lancamentoRequestDTO, CODIGO_USUARIO_GLOBAL));
-    }
-
-    @Test
-    void incluirDebitoValidarRequestDTO() {
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirDebito(null, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTOValorInvalido = new LancamentoRequestDTO(null,
-                RandomStringUtils.random(10, true, true), LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirDebito(requestDTOValorInvalido, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODescricaoNula = new LancamentoRequestDTO(null,
-                null, LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirDebito(requestDTODescricaoNula, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODescricaoVazia = new LancamentoRequestDTO(null,
-                Strings.EMPTY, LocalDate.now());
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirDebito(requestDTODescricaoVazia, CODIGO_USUARIO_GLOBAL));
-
-        final LancamentoRequestDTO requestDTODataNula = new LancamentoRequestDTO(null,
-                RandomStringUtils.random(10, true, true), null);
-        assertThrows(ConstraintViolationException.class, () -> this.service.incluirDebito(requestDTODataNula, CODIGO_USUARIO_GLOBAL));
-    }
-
-    @Test
-    void incluirDebitoContaNaoExiste() {
-        final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock();
-        final String usuario = RandomStringUtils.random(10, true, true);
-        assertThrows(ContaNaoEncontradaException.class, () -> this.service.incluirDebito(lancamentoRequestDTO, usuario));
-    }
-
-    @Test
-    void incluirDebitoSaldoInsuficiente() {
-        final LancamentoRequestDTO lancamentoRequestDTO = super.getLancamentoRequestMock(BigDecimal.valueOf(60000000));
-        assertThrows(SaldoInsuficienteException.class, () -> this.service.incluirDebito(lancamentoRequestDTO, CODIGO_USUARIO_GLOBAL));
+        final LocalDate data = LocalDate.now();
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(null, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(Strings.EMPTY, data));
+        assertThrows(ConstraintViolationException.class, () -> this.service.incluirContaCorrente(CODIGO_USUARIO_GLOBAL, null));
     }
 
     @Test
     void atualizarSaldoMovimento() {
-        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL));
+        final LocalDate data = LocalDate.now();
+        final String usuario = RandomStringUtils.random(30, true, true);
+        final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.atualizarSaldo(usuario, BigDecimal.TEN,
+                TipoNatureza.CREDITO, data));
         assertNotNull(contaCorrente);
 
-        final ContaCorrente contaCorrenteAtualizada = assertDoesNotThrow(() -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+        final ContaCorrente contaCorrenteAtualizada = assertDoesNotThrow(() -> this.service.atualizarSaldoMovimento(usuario,
+                BigDecimal.TEN, TipoNatureza.CREDITO, data));
         assertNotNull(contaCorrenteAtualizada);
         assertTrue(contaCorrenteAtualizada.getSaldoConta().compareTo(contaCorrente.getSaldoConta()) > 0);
         assertEquals(contaCorrenteAtualizada.getSaldoConta(), contaCorrente.getSaldoConta().add(BigDecimal.TEN));
@@ -202,13 +138,15 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
 
     @Test
     void atualizarSaldoMovimentoValidarParametros() {
+        final LocalDate data = LocalDate.now();
+
         assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(null,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+                BigDecimal.TEN, TipoNatureza.CREDITO, data));
         assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(Strings.EMPTY,
-                BigDecimal.TEN, TipoNatureza.CREDITO));
+                BigDecimal.TEN, TipoNatureza.CREDITO,data));
         assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
-                null, TipoNatureza.CREDITO));
+                null, TipoNatureza.CREDITO, data));
         assertThrows(ConstraintViolationException.class, () -> this.service.atualizarSaldoMovimento(CODIGO_USUARIO_GLOBAL,
-                BigDecimal.TEN, null));
+                BigDecimal.TEN, null, data));
     }
 }

@@ -9,9 +9,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static br.com.cepp.maps.financas.config.AppDataConfig.CODIGO_USUARIO_GLOBAL;
+import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -228,7 +230,8 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
 
     @Test
     void consulta() {
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/").concat(CODIGO_USUARIO_GLOBAL))
+        final String data = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{codigoUsuario}/{data}"), CODIGO_USUARIO_GLOBAL, data)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -254,7 +257,9 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaNoContent() {
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/hdjfhjdhfj"))
+        final String data = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        final String codigoUsuario = RandomStringUtils.random(8, true, false);
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{codigoUsuario}/{data}"), codigoUsuario, data)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)

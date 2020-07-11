@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 @EnableAutoConfiguration
 public class AplicacaoConfig {
+    public static final String CODIGO_USUARIO_GLOBAL = "USR_GLOBAL";
 
     @Bean
     public ModelMapper modelMapper() {

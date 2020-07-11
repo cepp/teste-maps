@@ -3,6 +3,7 @@ package br.com.cepp.maps.financas.resource;
 import br.com.cepp.maps.financas.model.ContaCorrente;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
 import br.com.cepp.maps.financas.service.ContaCorrenteService;
+import br.com.cepp.maps.financas.service.LancamentoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -12,6 +13,7 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -39,10 +42,12 @@ public class ContaCorrenteResource {
     public static final String MSG_OPERACAO_REALIZADA_COM_SUCESSO = "Operação realizada com sucesso";
     public static final String HEADER_CODIGO_USUARIO = "codigoUsuario";
     private final ContaCorrenteService contaCorrenteService;
+    private final LancamentoService lancamentoService;
 
     @Autowired
-    public ContaCorrenteResource(ContaCorrenteService contaCorrenteService) {
+    public ContaCorrenteResource(ContaCorrenteService contaCorrenteService, LancamentoService lancamentoService) {
         this.contaCorrenteService = contaCorrenteService;
+        this.lancamentoService = lancamentoService;
     }
 
     @PostMapping(path = "/credito", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
@@ -61,7 +66,7 @@ public class ContaCorrenteResource {
     })
     public ResponseEntity<String> credito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO,
                                           @RequestHeader(name = HEADER_CODIGO_USUARIO) @NotEmpty(message = "Header 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        this.contaCorrenteService.incluirCredito(lancamentoRequestDTO, codigoUsuario);
+        this.lancamentoService.incluirCredito(lancamentoRequestDTO, codigoUsuario);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
@@ -81,11 +86,11 @@ public class ContaCorrenteResource {
     })
     public ResponseEntity<String> debito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO,
                                          @RequestHeader(name = HEADER_CODIGO_USUARIO) @NotEmpty(message = "Header 'codigoUsuario' é obrigatório") String codigoUsuario) {
-        this.contaCorrenteService.incluirDebito(lancamentoRequestDTO, codigoUsuario);
+        this.lancamentoService.incluirDebito(lancamentoRequestDTO, codigoUsuario);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(path="/{codigoUsuario}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path="/{codigoUsuario}/{data}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
     @ApiOperation(value = "Consulta Saldo da Conta", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -99,8 +104,9 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> consulta(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = HEADER_CODIGO_USUARIO) final String codigoUsuario) {
-        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(codigoUsuario);
+    public ResponseEntity<String> consulta(@NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = HEADER_CODIGO_USUARIO) final String codigoUsuario,
+                                           @NotNull(message = "Campo 'data' é obrigatorio") @PathVariable(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
+        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(codigoUsuario, data);
         return ResponseEntity.ok(contaCorrente.getSaldoConta().toString());
     }
 }
