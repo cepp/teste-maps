@@ -103,6 +103,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(AtivoValorUtilizadoException.class)
+    public ResponseEntity<Object> handleAtivoValorUtilizadoException(AtivoValorUtilizadoException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+    }
+
+    @ExceptionHandler(AtivoUtilizadoException.class)
+    public ResponseEntity<Object> handleAtivoUtilizadoException(AtivoUtilizadoException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+    }
+
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
         return ResponseEntity.status(httpStatus).body(message);
     }
