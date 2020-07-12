@@ -5,8 +5,9 @@ Sistema criado para participar do processo seletivo da MAPS
 A versão Java utilizada para criar o projeto foi a 14
 
 ### Maven
-Projeto foi criado usando o controle de dependências [Maven](), para contruir o projeto é necessário executar no terminal o seguinte comando:
-> mvn install
+Projeto foi criado usando o controle de dependências [Apache Maven](https://maven.apache.org/), para contruir o projeto 
+é necessário executar no terminal o seguinte comando:
+> mvn package
 
 Ao terminar a construção do projeto, será criada a pastar __target__ com o código compilado do projeto e na pasta __site__ 
 pode-se encontrar o relatório de execução dos testes unitários surefire-report.html e o relatório de cobertura de testes 
@@ -15,7 +16,8 @@ __jacoco/indext.html__
 O artefato compilado depois da instalação é o __financas-1.0.0.jar__ que será levantado no servidor para apresentação.
 
 ### Banco de dados
-.....
+Foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de configuração e 
+facilitar na implantação do projeto na nuvem. 
 
 ### Http Status
 A definição do Http Status pode ser visualizada na [documentação da API](docs/swagger.html) ou nos itens abaixo:
