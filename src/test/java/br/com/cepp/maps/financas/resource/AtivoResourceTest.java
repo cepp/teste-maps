@@ -1,6 +1,7 @@
 package br.com.cepp.maps.financas.resource;
 
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
+import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
@@ -155,6 +156,21 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    void incluirAtivoPeriodoInvalido() {
+        final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock(LocalDate.now().plusDays(2),
+                LocalDate.now());
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ativoRequestTestDTO.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest())
+                .andReturn());
+    }
+
+    @Test
     void alterar() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -243,6 +259,40 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isNoContent())
+                .andReturn());
+    }
+
+    @Test
+    void removerAtivoUtilizado() {
+        final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ativoRequestTestDTO.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
+                .andReturn());
+
+        final AtivoValorRequestTestDTO ativoValorRequestTestDTO = super.getAtivoValorRequestTestDTOMock(ativoRequestTestDTO.getCodigo());
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post("/valorativo")
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ativoValorRequestTestDTO.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
+                .andReturn());
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(delete(URI_V1.concat(ativoRequestTestDTO.getCodigo()))
+                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isConflict())
                 .andReturn());
     }
 

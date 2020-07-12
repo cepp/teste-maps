@@ -16,10 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -63,7 +63,7 @@ public class AtivoValorResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @DeleteMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/{codigoAtivo}/{data}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Remover Valor Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -77,8 +77,8 @@ public class AtivoValorResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> remover(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatorio") @RequestParam(name = "codigoAtivo") final String codigoAtivo,
-                                          @NotNull(message = "Campo 'data' é obrigatorio") @RequestParam(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
+    public ResponseEntity<String> remover(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatorio") @PathVariable(name = "codigoAtivo") final String codigoAtivo,
+                                          @NotNull(message = "Campo 'data' é obrigatorio") @PathVariable(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
         this.service.remover(codigoAtivo, data);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }

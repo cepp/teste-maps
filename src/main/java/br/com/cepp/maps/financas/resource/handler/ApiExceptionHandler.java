@@ -9,18 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Log4j2
 @ControllerAdvice
@@ -51,26 +47,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return super.handleExceptionInternal(ex, erros.toString(), headers, HttpStatus.BAD_REQUEST, request);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> constraintViolationException(ConstraintViolationException e) {
-        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        List<String> falhas = new ArrayList<>();
-        for (ConstraintViolation<?> violation : violations) {
-            falhas.add(violation.getMessage());
-        }
-        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, falhas.toString());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Object> illegalArgumentException(IllegalArgumentException exception) {
-        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    protected ResponseEntity<Object> missingRequestHeaderException() {
-        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, "Header incompleto, está faltando uma informação");
     }
 
     @ExceptionHandler(SaldoInsuficienteException.class)
@@ -105,12 +81,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AtivoValorUtilizadoException.class)
     public ResponseEntity<Object> handleAtivoValorUtilizadoException(AtivoValorUtilizadoException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+        return this.getRespostaErroPadrao(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(AtivoUtilizadoException.class)
     public ResponseEntity<Object> handleAtivoUtilizadoException(AtivoUtilizadoException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+        return this.getRespostaErroPadrao(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(MovimentoNaoEcontradoException.class)

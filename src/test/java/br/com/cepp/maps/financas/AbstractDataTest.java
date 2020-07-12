@@ -55,10 +55,6 @@ public abstract class AbstractDataTest {
         return this.getAtivoRequestDTO(codigo, TipoAtivo.RV, null);
     }
 
-    protected AtivoRequestDTO getAtivoRequestDTO(TipoAtivo tipoAtivo) {
-        return this.getAtivoRequestDTO(null, tipoAtivo, null);
-    }
-
     protected AtivoRequestDTO getAtivoRequestDTO(LocalDate dataEmissao) {
         return this.getAtivoRequestDTO(null, TipoAtivo.RV, dataEmissao);
     }
@@ -83,12 +79,16 @@ public abstract class AbstractDataTest {
     }
 
     protected AtivoRequestTestDTO getAtivoRequestDTOMock() {
+        return this.getAtivoRequestDTOMock(LocalDate.now(), LocalDate.now().plusDays(1));
+    }
+
+    protected AtivoRequestTestDTO getAtivoRequestDTOMock(LocalDate dataEmissao, LocalDate dataVencimento) {
         AtivoRequestTestDTO ativoRequest = new AtivoRequestTestDTO();
         ativoRequest.setCodigo(RandomStringUtils.random(8, true, true));
         ativoRequest.setTipoAtivo(TipoAtivo.RV.name());
         ativoRequest.setNome(RandomStringUtils.random(10, true, true));
-        ativoRequest.setDataEmissao(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
-        ativoRequest.setDataVencimento(LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE));
+        ativoRequest.setDataEmissao(dataEmissao.format(DateTimeFormatter.ISO_DATE));
+        ativoRequest.setDataVencimento(dataVencimento.format(DateTimeFormatter.ISO_DATE));
         return ativoRequest;
     }
 
@@ -114,8 +114,12 @@ public abstract class AbstractDataTest {
     }
 
     protected AtivoValorRequestTestDTO getAtivoValorRequestTestDTOMock(String codigoAtivo) {
+        return this.getAtivoValorRequestTestDTOMock(codigoAtivo, this.getDataDiaUtil());
+    }
+
+    protected AtivoValorRequestTestDTO getAtivoValorRequestTestDTOMock(String codigoAtivo, LocalDate dataPosicao) {
         AtivoValorRequestTestDTO ativoRequestTestDTO = new AtivoValorRequestTestDTO();
-        ativoRequestTestDTO.setData(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        ativoRequestTestDTO.setData(dataPosicao.format(DateTimeFormatter.ISO_DATE));
         BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(8, RoundingMode.DOWN);
         ativoRequestTestDTO.setValor(String.valueOf(valor.doubleValue()));
         ativoRequestTestDTO.setCodigoAtivo(codigoAtivo);
@@ -146,9 +150,12 @@ public abstract class AbstractDataTest {
     }
 
     protected void iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data) {
+        this.iniciarAtivoValor(codigo, tipoAtivo, data, this.getDataDiaUtil(), this.getDataDiaUtil().plusDays(4));
+    }
+
+    protected void iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data,
+                                     final LocalDate dataEmissao, final LocalDate dataVencimento) {
         if(!this.ativoService.existsAtivoPorCodigo(codigo)) {
-            final LocalDate dataEmissao = this.getDataDiaUtil();
-            final LocalDate dataVencimento = dataEmissao.plusDays(4);
             final AtivoRequestDTO ativo = this.getAtivoRequestDTO(codigo, tipoAtivo, dataEmissao, dataVencimento);
             this.ativoService.incluir(ativo);
         }
