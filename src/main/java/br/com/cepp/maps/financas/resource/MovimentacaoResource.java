@@ -1,8 +1,8 @@
 package br.com.cepp.maps.financas.resource;
 
-import br.com.cepp.maps.financas.model.Estoque;
 import br.com.cepp.maps.financas.resource.dto.EstoqueResponseDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
+import br.com.cepp.maps.financas.resource.dto.MovimentoResponseDTO;
 import br.com.cepp.maps.financas.service.MovimentoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
@@ -29,7 +31,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.List;
 
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO;
@@ -48,7 +49,7 @@ public class MovimentacaoResource {
         this.service = service;
     }
 
-    @PostMapping(path = "/compra", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/compra", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Compra de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -68,7 +69,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @PostMapping(path = "/venda", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @PostMapping(path = "/venda", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Venda de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -88,7 +89,7 @@ public class MovimentacaoResource {
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
-    @GetMapping(path = "/ativo/{ativo}/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/{dataInicio}/{dataFim}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -102,14 +103,13 @@ public class MovimentacaoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<EstoqueResponseDTO> consulta(@NotEmpty(message = "Campo 'ativo' é obrigatório") @PathVariable(name = "ativo") final String ativo,
-                                                       @NotNull(message = "Campo 'dataPosicao' é obrigatório") @PathVariable(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
-        Estoque estoque = this.service.buscarPosicaoPorCodigoEData(ativo, dataPosicao);
-        EstoqueResponseDTO estoqueResponseDTO = this.converterEntidadeParaDTO(estoque);
-        return ResponseEntity.ok(estoqueResponseDTO);
+    public ResponseEntity<Page<MovimentoResponseDTO>> consultaMovimentacoesPorPeriodo(@NotNull(message = "Campo 'dataFim' é obrigatório") @PathVariable(name = "dataInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataInicio,
+                                                                                      @NotNull(message = "Campo 'dataFim' é obrigatório") @PathVariable(name = "dataFim") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataFim,
+                                                                                      Pageable pageable) {
+        return ResponseEntity.ok(this.service.buscarPosicaoPorPeriodo(dataInicio, dataFim, pageable));
     }
 
-    @GetMapping(path = "/{dataPosicao}", produces = {MimeTypeUtils.APPLICATION_JSON_VALUE, "*/*;charset=UTF-8"})
+    @GetMapping(path = "/posicao/{dataPosicao}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta saldo de ativos", authorizations = {@Authorization(value = AUTHORIZATION)})
     @ApiImplicitParams({
             @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
@@ -123,11 +123,8 @@ public class MovimentacaoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<List<EstoqueResponseDTO>> consultaPorData(@NotNull(message = "Campo 'dataPosicao' é obrigatório") @PathVariable(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao) {
-        return ResponseEntity.ok(this.service.buscarPorDataPosicao(dataPosicao));
-    }
-
-    private EstoqueResponseDTO converterEntidadeParaDTO(Estoque estoque) {
-        return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(), estoque.getDataPosicao(), null, null, null);
+    public ResponseEntity<Page<EstoqueResponseDTO>> consultaPosicaoPorData(@NotNull(message = "Campo 'dataPosicao' é obrigatório") @PathVariable(name = "dataPosicao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate dataPosicao,
+                                                                           Pageable pageable) {
+        return ResponseEntity.ok(this.service.buscarPorDataPosicao(dataPosicao, pageable));
     }
 }

@@ -231,7 +231,8 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
     @Test
     void consulta() {
         final String data = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{codigoUsuario}/{data}"), CODIGO_USUARIO_GLOBAL, data)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/saldo"))
+                .queryParam("data", data)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -257,9 +258,9 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
 
     @Test
     void consultaNoContent() {
-        final String data = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        final String codigoUsuario = RandomStringUtils.random(8, true, false);
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{codigoUsuario}/{data}"), codigoUsuario, data)
+        final String data = LocalDate.now().minusDays(4).format(DateTimeFormatter.ISO_DATE);
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/saldo"))
+                .queryParam("data", data)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)

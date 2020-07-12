@@ -2,10 +2,11 @@ package br.com.cepp.maps.financas.resource.dto;
 
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateDeserializer;
+import br.com.cepp.maps.financas.resource.serialization.FinancasLocalDateSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,7 +24,7 @@ public class EstoqueResponseDTO implements Serializable {
     private final String ativo;
     private final TipoAtivo tipoAtivo;
     private final BigDecimal quantidade;
-    @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
+    @JsonSerialize(using = FinancasLocalDateSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FinancasLocalDateDeserializer.DATE_FORMAT)
     private final LocalDate dataPosicao;
     private final BigDecimal lucro;

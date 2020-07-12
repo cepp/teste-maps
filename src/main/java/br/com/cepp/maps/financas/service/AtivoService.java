@@ -23,20 +23,20 @@ import java.util.ArrayList;
 @Service
 @Validated
 public class AtivoService {
-    private final AtivoRepository repository;
+    private final AtivoRepository ativoRepository;
 
     @Autowired
-    public AtivoService(AtivoRepository repository) {
-        this.repository = repository;
+    public AtivoService(AtivoRepository ativoRepository) {
+        this.ativoRepository = ativoRepository;
     }
 
     @Transactional
     public Ativo incluir(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO) {
-        if(this.repository.existsById(ativoRequestDTO.getCodigo())) {
+        if(this.ativoRepository.existsById(ativoRequestDTO.getCodigo())) {
             throw new AtivoJaExisteException(ativoRequestDTO.getCodigo());
         }
         final Ativo ativo = this.converterDTOParaEntidade(ativoRequestDTO);
-        return this.repository.save(ativo);
+        return this.ativoRepository.save(ativo);
     }
 
     @Transactional
@@ -47,18 +47,18 @@ public class AtivoService {
         final Ativo ativoParaAtualizar = ativoBD.comNome(ativoRequestDTO.getNome())
                 .comTipoAtivo(ativoRequestDTO.getTipoAtivo()).comDataEmissao(ativoRequestDTO.getDataEmissao())
                 .comDataVencimento(ativoRequestDTO.getDataVencimento());
-        return this.repository.save(ativoParaAtualizar);
+        return this.ativoRepository.save(ativoParaAtualizar);
     }
 
     @Transactional
     public void remover(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
         final Ativo ativoBD = this.buscarPorCodigo(codigo);
 
-        if(this.repository.existsByCodigoAndPosicoesIsNotEmpty(codigo)) {
+        if(this.ativoRepository.existsByCodigoAndPosicoesIsNotEmpty(codigo)) {
             throw new AtivoUtilizadoException(codigo);
         }
 
-        this.repository.delete(ativoBD);
+        this.ativoRepository.delete(ativoBD);
     }
 
     private Ativo converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") AtivoRequestDTO ativoRequestDTO) {
@@ -67,17 +67,17 @@ public class AtivoService {
                 ativoRequestDTO.getDataEmissao(), ativoRequestDTO.getDataVencimento(), new ArrayList<>());
     }
 
-    private void validarDatas(LocalDate dataEmissao, LocalDate dataVencimento) {
+    protected void validarDatas(LocalDate dataEmissao, LocalDate dataVencimento) {
         if(dataEmissao.compareTo(dataVencimento) >= 0) {
             throw new ValidacaoNegocioException("Data Emissão deve ser sempre anterior à Data Vencimento");
         }
     }
 
     public Ativo buscarPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
-        return this.repository.findById(codigo).orElseThrow(() -> new AtivoNaoEncontradoException(codigo));
+        return this.ativoRepository.findById(codigo).orElseThrow(() -> new AtivoNaoEncontradoException(codigo));
     }
 
     public boolean existsAtivoPorCodigo(@NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo) {
-        return this.repository.existsByCodigo(codigo);
+        return this.ativoRepository.existsByCodigo(codigo);
     }
 }
