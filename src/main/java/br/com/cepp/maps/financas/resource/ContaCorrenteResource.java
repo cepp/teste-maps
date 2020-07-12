@@ -2,6 +2,7 @@ package br.com.cepp.maps.financas.resource;
 
 import br.com.cepp.maps.financas.model.ContaCorrente;
 import br.com.cepp.maps.financas.resource.dto.LancamentoRequestDTO;
+import br.com.cepp.maps.financas.resource.dto.SaldoResponseDTO;
 import br.com.cepp.maps.financas.service.ContaCorrenteService;
 import br.com.cepp.maps.financas.service.LancamentoService;
 import io.swagger.annotations.Api;
@@ -105,8 +106,9 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> consulta(@NotNull(message = "Campo 'data' é obrigatorio") @RequestParam(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
+    public ResponseEntity<SaldoResponseDTO> consulta(@NotNull(message = "Campo 'data' é obrigatorio") @RequestParam(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
         ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, data);
-        return ResponseEntity.ok(contaCorrente.getSaldoConta().toString());
+        final SaldoResponseDTO saldoResponseDTO = new SaldoResponseDTO(contaCorrente.getSaldoConta());
+        return ResponseEntity.ok(saldoResponseDTO);
     }
 }

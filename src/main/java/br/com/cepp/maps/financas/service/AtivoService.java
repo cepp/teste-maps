@@ -18,6 +18,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -37,6 +38,11 @@ public class AtivoService {
         }
         final Ativo ativo = this.converterDTOParaEntidade(ativoRequestDTO);
         return this.ativoRepository.save(ativo);
+    }
+
+    @Transactional
+    public List<Ativo> salvar(@Valid @NotNull(message = "Objeto request é obrigatório") List<Ativo> ativos) {
+        return this.ativoRepository.saveAll(ativos);
     }
 
     @Transactional

@@ -136,7 +136,8 @@ public abstract class AbstractDataTest {
 
     protected MovimentoRequestDTO getMovimentoRequestDTOMock(String codigo, LocalDate dataAnteriorEmissao) {
         BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.DOWN);
-        return new MovimentoRequestDTO(codigo, dataAnteriorEmissao, quantidade);
+        BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(2, RoundingMode.DOWN);
+        return new MovimentoRequestDTO(codigo, dataAnteriorEmissao, quantidade, valor);
     }
 
     protected LocalDate getDataDiaUtil() {
