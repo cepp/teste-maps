@@ -8,17 +8,17 @@ import br.com.cepp.maps.financas.resource.handler.EstoqueNaoEncontradoException;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Log4j2
@@ -51,11 +51,6 @@ public class EstoqueService {
         this.repository.save(estoqueAtualizado);
     }
 
-    public Estoque buscarPosicaoPorAtivo(@NotEmpty(message = "Campo 'ativo' é obrigatório") String ativo,
-                                         @NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
-        return this.repository.findByAtivo_CodigoAndDataPosicao(ativo, dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(ativo, dataPosicao));
-    }
-
     private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado, TipoMovimento tipoMovimento, Integer precisao) {
         final BigDecimal valorAjustado = TipoMovimento.COMPRA.equals(tipoMovimento) ? valor.negate() : valor;
         return valorAcumulado
@@ -63,7 +58,15 @@ public class EstoqueService {
                     .setScale(precisao, RoundingMode.DOWN);
     }
 
-    public List<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
-        return this.repository.findByDataPosicao(dataPosicao).orElseThrow(() -> new EstoqueNaoEncontradoException(dataPosicao));
+    public Page<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao,
+                                              Pageable pageable) {
+        Page<Estoque> pageEstoque = this.repository.findByDataPosicao(dataPosicao, pageable)
+                .orElseThrow(() -> new EstoqueNaoEncontradoException(dataPosicao));
+
+        if(pageEstoque.isEmpty()) {
+            throw new EstoqueNaoEncontradoException(dataPosicao);
+        }
+
+        return pageEstoque;
     }
 }

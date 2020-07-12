@@ -3,11 +3,15 @@ package br.com.cepp.maps.financas.repository;
 import br.com.cepp.maps.financas.model.Ativo;
 import br.com.cepp.maps.financas.model.Movimento;
 import br.com.cepp.maps.financas.model.dominio.TipoMovimento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +25,6 @@ public interface MovimentoRepository extends JpaRepository<Movimento, Long> {
             "AND a.ativo.codigo = :ativo")
     Optional<BigDecimal> somaValorPorAtivoTipoMovimento(String ativo, TipoMovimento tipoMovimento);
     Long countByAtivoValor_AtivoAndTipoMovimento(Ativo ativo, TipoMovimento tipoMovimento);
+    @EntityGraph(attributePaths = {"ativoValor", "ativoValor.ativo"})
+    Optional<Page<Movimento>> findByDataMovimentoBetweenOrderByDataMovimentoDesc(LocalDate dataInicio, LocalDate dataFim, Pageable pageable);
 }

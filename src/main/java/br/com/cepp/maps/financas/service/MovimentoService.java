@@ -9,10 +9,14 @@ import br.com.cepp.maps.financas.model.dominio.TipoNatureza;
 import br.com.cepp.maps.financas.repository.MovimentoRepository;
 import br.com.cepp.maps.financas.resource.dto.EstoqueResponseDTO;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestDTO;
+import br.com.cepp.maps.financas.resource.dto.MovimentoResponseDTO;
 import br.com.cepp.maps.financas.resource.handler.AtivoPeriodoInvalidoException;
 import br.com.cepp.maps.financas.resource.handler.MovimentoFinalSemanaException;
+import br.com.cepp.maps.financas.resource.handler.MovimentoNaoEcontradoException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -24,8 +28,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Log4j2
 @Service
@@ -75,31 +77,23 @@ public class MovimentoService {
         return new Movimento(null, ativoValor, requestDTO.getData(), requestDTO.getQuantidade(), valor, tipoMovimento);
     }
 
-    public Estoque buscarPosicaoPorCodigoEData(@NotEmpty(message = "Campo 'ativo' é obrigatório") String codigo,
-                                               @NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
-        return this.estoqueService.buscarPosicaoPorAtivo(codigo, dataPosicao);
+    public Page<MovimentoResponseDTO> buscarPosicaoPorPeriodo(@NotNull(message = "Campo 'dataInicio' é obrigatório") LocalDate dataInicio,
+                                                              @NotNull(message = "Campo 'dataFim' é obrigatório") LocalDate dataFim,
+                                                              @NotNull(message = "Paginação é obrigatória") Pageable pageable) {
+        Page<Movimento> movimentos = this.repository.findByDataMovimentoBetweenOrderByDataMovimentoDesc(dataInicio, dataFim, pageable)
+                .orElseThrow(() -> new MovimentoNaoEcontradoException(dataInicio, dataFim));
+
+        if(movimentos.isEmpty()) {
+            throw new MovimentoNaoEcontradoException(dataInicio, dataFim);
+        }
+
+        return movimentos.map(this::converterMovimentoParaDTO);
     }
 
-    public List<EstoqueResponseDTO> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao) {
-        List<Estoque> listaPosicao = this.estoqueService.buscarPorDataPosicao(dataPosicao);
-        List<EstoqueResponseDTO> responseDTO = new ArrayList<>();
-        listaPosicao.forEach(estoque -> {
-            final AtivoValor ativoValor = this.ativoValorService.buscarPorAtivoEData(estoque.getAtivo().getCodigo(),
-                    dataPosicao);
-            final BigDecimal totalCompra = calcularRendimento(ativoValor);
-
-            final BigDecimal lucro = calcularLucro(ativoValor);
-            log.debug("{}: {}", estoque.getAtivo().getCodigo(), lucro);
-
-            final EstoqueResponseDTO estoqueResponseDTO = this.converterEntidadeParaDTO(estoque, lucro, totalCompra);
-            responseDTO.add(estoqueResponseDTO);
-        });
-
-        return responseDTO;
-    }
-
-    private EstoqueResponseDTO converterEntidadeParaDTO(Estoque estoque, BigDecimal lucro, BigDecimal rendimento) {
-        return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(), estoque.getDataPosicao(), lucro, rendimento, estoque.getValor());
+    public Page<EstoqueResponseDTO> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao,
+                                                         Pageable pageable) {
+        Page<Estoque> listaPosicao = this.estoqueService.buscarPorDataPosicao(dataPosicao, pageable);
+        return listaPosicao.map(estoque ->  this.converterEstoqueParaDTO(estoque, dataPosicao));
     }
 
     private BigDecimal calcularLucro(AtivoValor ativo) {
@@ -131,5 +125,22 @@ public class MovimentoService {
         if(requestDTO.getData().compareTo(ativo.getDataEmissao()) < 0 || requestDTO.getData().compareTo(ativo.getDataVencimento()) > 0) {
             throw new AtivoPeriodoInvalidoException(requestDTO.getData(), ativo.getCodigo());
         }
+    }
+
+    private EstoqueResponseDTO converterEstoqueParaDTO(Estoque estoque, LocalDate dataPosicao) {
+        final AtivoValor ativoValor = this.ativoValorService.buscarPorAtivoEData(estoque.getAtivo().getCodigo(),
+                dataPosicao);
+        final BigDecimal rendimento = calcularRendimento(ativoValor);
+
+        final BigDecimal lucro = calcularLucro(ativoValor);
+        log.debug("{}: {}", estoque.getAtivo().getCodigo(), lucro);
+
+        return new EstoqueResponseDTO(estoque.getAtivo().getCodigo(), estoque.getAtivo().getTipoAtivo(), estoque.getQuantidade(),
+                estoque.getDataPosicao(), lucro, rendimento, estoque.getValor());
+    }
+
+    private MovimentoResponseDTO converterMovimentoParaDTO(Movimento movimento) {
+        return new MovimentoResponseDTO(movimento.getAtivoValor().getAtivo().getCodigo(), movimento.getDataMovimento(),
+                movimento.getQuantidade(), movimento.getValor(), movimento.getTipoMovimento());
     }
 }

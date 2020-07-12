@@ -4,7 +4,6 @@ import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.dto.MovimentoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
 import br.com.cepp.maps.financas.service.AtivoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +20,10 @@ import java.util.UUID;
 import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -123,7 +121,8 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo/{ativo}/{dataPosicao}"), codigo, movimentoRequestTestDTO.getData())
+        final String dataInicio = super.getDataDiaUtil().minusDays(1).format(DateTimeFormatter.ISO_DATE);
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{dataInicio}/{dataFim}"), dataInicio, movimentoRequestTestDTO.getData())
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -138,9 +137,10 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
         final String codigo = RandomStringUtils.random(10, true, true);
         super.iniciarAtivoValor(codigo, TipoAtivo.RV, this.getDataDiaUtil());
 
-        final String localDate = super.getDataDiaUtil().format(DateTimeFormatter.ISO_DATE);
+        final String dataInicio = super.getDataDiaUtil().minusDays(7).format(DateTimeFormatter.ISO_DATE);
+        final String dataFim = super.getDataDiaUtil().minusDays(6).format(DateTimeFormatter.ISO_DATE);
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/ativo/{ativo}/{dataPosicao}"), codigo, localDate)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/{dataInicio}/{dataFim}"), dataInicio, dataFim)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -237,25 +237,23 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
-        MvcResult result = assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("{dataPosicao}"), dataPosicao.format(DateTimeFormatter.ISO_DATE))
+        MvcResult result = assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/posicao/{dataPosicao}"), dataPosicao.format(DateTimeFormatter.ISO_DATE))
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").exists())
+                .andExpect(jsonPath("$.totalElements").value(3))
                 .andReturn());
-
-        Object[] response = assertDoesNotThrow(() -> new ObjectMapper().readValue(result.getResponse().getContentAsString(), Object[].class));
-        assertNotNull(response);
-        assertEquals(3, response.length);
     }
 
     @Test
     void consultaPorDataEstoqueNaoExiste() {
-        final String localDate = super.getDataDiaUtil().plusDays(-1L).format(DateTimeFormatter.ISO_DATE);
+        final String localDate = super.getDataDiaUtil().minusDays(1L).format(DateTimeFormatter.ISO_DATE);
 
-        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("{dataPosicao}"), localDate)
+        assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/posicao/{dataPosicao}"), localDate)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)

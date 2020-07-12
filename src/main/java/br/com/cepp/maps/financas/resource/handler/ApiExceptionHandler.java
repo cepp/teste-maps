@@ -113,6 +113,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
     }
 
+    @ExceptionHandler(MovimentoNaoEcontradoException.class)
+    public ResponseEntity<Object> handleMovimentoNaoEcontradoException(MovimentoNaoEcontradoException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+    }
+
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
         return ResponseEntity.status(httpStatus).body(message);
     }
