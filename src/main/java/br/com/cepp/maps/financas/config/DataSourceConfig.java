@@ -28,11 +28,12 @@ public class DataSourceConfig {
 
     @Bean
     @Profile(value = {"default"})
-    public DataSource jndiDataSource(@Value("${spring.datasource.url}") String url,
-                                     @Value("${spring.datasource.username}") String username,
-                                     @Value("${spring.datasource.password}") String password) {
+    public DataSource jndiDataSource() {
+        final String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        final String username = System.getenv("JDBC_DATABASE_USERNAME");
+        final String password = System.getenv("JDBC_DATABASE_PASSWORD");
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
+        config.setJdbcUrl(dbUrl);
         config.setUsername(username);
         config.setPassword(password);
         return new HikariDataSource(config);
