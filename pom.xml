@@ -28,7 +28,7 @@
         <io.springfox.version>2.9.2</io.springfox.version>
         <model.mapper.version>2.3.5</model.mapper.version>
         <jackson.datatype.jsr310.version>2.4.0</jackson.datatype.jsr310.version>
-        <skip.it.test>false</skip.it.test>
+        <skip.it.test>true</skip.it.test>
         <springdoc.openapi.ui.version>1.4.3</springdoc.openapi.ui.version>
         <jasypt.version>2.0.0</jasypt.version>
     </properties>
