@@ -23,8 +23,19 @@ Após a instalação do projeto serão criados os seguintes artefatos na pasta _
 padrão do [redoc](https://github.com/Redocly/redoc), que é o mesmo utilizado pelo [DICT API](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/api-dict.html)
 
 ### Banco de dados
-Foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de configuração e 
-facilitar na implantação do projeto na nuvem. 
+Inicialmente foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de 
+configuração e facilitar na implantação do projeto na nuvem, mas o servidor escolhido não possui suporte ao banco de 
+dados H2, então foi feita a configuração do [PostgreSQL](https://www.postgresql.org/), que o Heroku possui suporte.
+
+Foi adicionada uma pasta na raiz do projeto chamada [Docker](https://www.docker.com) com o __docker-compose.yaml__ criando 
+a instância do banco de dados necessários para utilizar a aplicação standalone.
+
+Se possuir o docker instalado na máquina que utilizará a aplicação standalone, então abra o terminal na pasta [docker](/docker) 
+e execute o comando abaixo:
+> docker-compose up -d
+
+Será criado um container PostgreSQL com o banco de dados __financas__, usuário __financas__ e senha __f1n4nc4s@123__, 
+que conferem com as credenciais informadas no [application.yaml](src/main/resources/application.yaml) do projeto. 
 
 ### Http Status
 A definição do Http Status pode ser visualizada na [documentação da API](docs/swagger.html) ou nos itens abaixo:
@@ -42,6 +53,8 @@ O deploy da aplicação foi realizado no [Heroku](https://www.heroku.com) e pode
 Não foi implementada a parte Web, mas como o projeto foi criado desde o início com a documentação do swagger, estou deixando
 o [swagger-ui](https://financas-maps.herokuapp.com/financas/swagger-ui.html) habilitado para que possam utilizar, ao acessar
 abrirá um prompt no navegador para colocar as credenciais, então colocar o usuário root ou os usuários usuario0 - usuario17.
+
+Antes de implantar a aplicação foi necessário criar adicionar o add-on do PostgreSQL à minha conta, 
 
 No processo de implantação, tive que criar um App no Heroku, que chamei de __financas-maps__, então fui na área de __Deploy__
 e escolhi o método de deploy do [Github](), fazendo a vinculação e dando privilégios da minha conta à conta do Heroku, 

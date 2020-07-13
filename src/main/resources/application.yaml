@@ -22,17 +22,17 @@ logging:
 
 spring:
   datasource:
-    driverClassName: org.h2.Driver
-    username: sa
-    password: teste@123
-    url: jdbc:h2:mem:mainDB
+    driverClassName: org.postgresql.Driver
+    username: financas
+    password: f1n4nc4s@123
+    url: jdbc:postgresql://localhost/financas
     initializationMode: always
   jpa:
     hibernate:
       ddlAuto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     showSql: true
 
   jackson:
