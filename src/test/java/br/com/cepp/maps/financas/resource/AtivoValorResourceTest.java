@@ -19,9 +19,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static br.com.cepp.maps.financas.config.MockMvcConfig.UTF_8;
-import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static br.com.cepp.maps.financas.resource.MovimentacaoResourceTest.END_POINT_VENDA;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,7 +68,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
                 .content(ativoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 
@@ -147,7 +145,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 

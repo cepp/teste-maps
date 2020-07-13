@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -36,7 +35,7 @@ public class Movimento implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long codigo;
     @NotNull(message = "Campo 'ativo' é obrigatório")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private final AtivoValor ativoValor;
     @NotNull(message = "Campo 'dataMovimento' é obrigatório")
     private final LocalDate dataMovimento;
@@ -51,6 +50,9 @@ public class Movimento implements Serializable {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Campo 'tipoMovimento'é obrigatório")
     private final TipoMovimento tipoMovimento;
+    @NotNull(message = "Campo 'ativoUsuario' é obrigatório")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private final AtivoUsuario ativoUsuario;
 
     private Movimento() {
         this.codigo = null;
@@ -59,5 +61,11 @@ public class Movimento implements Serializable {
         this.quantidade = null;
         this.valor = null;
         this.tipoMovimento = null;
+        this.ativoUsuario = null;
+    }
+
+    public Movimento comCodigoAtivoUsuario(final AtivoUsuario stivoUsuario) {
+        return new Movimento(this.codigo, this.ativoValor, this.dataMovimento, this.quantidade, this.valor,
+                this.tipoMovimento, stivoUsuario);
     }
 }

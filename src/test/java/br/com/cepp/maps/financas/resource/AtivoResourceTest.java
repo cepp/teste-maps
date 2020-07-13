@@ -4,7 +4,6 @@ import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.tomcat.util.file.Matcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -241,7 +240,7 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .content(ativoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 
@@ -295,7 +294,7 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 
@@ -380,7 +379,7 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 

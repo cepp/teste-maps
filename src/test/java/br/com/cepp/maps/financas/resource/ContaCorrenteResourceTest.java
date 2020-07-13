@@ -240,7 +240,7 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(content().encoding(UTF_8))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 }

@@ -25,6 +25,9 @@ public interface MovimentoRepository extends JpaRepository<Movimento, Long> {
             "AND a.ativo.codigo = :ativo")
     Optional<BigDecimal> somaValorPorAtivoTipoMovimento(String ativo, TipoMovimento tipoMovimento);
     Long countByAtivoValor_AtivoAndTipoMovimento(Ativo ativo, TipoMovimento tipoMovimento);
-    @EntityGraph(attributePaths = {"ativoValor", "ativoValor.ativo"})
-    Optional<Page<Movimento>> findByDataMovimentoBetweenOrderByDataMovimentoDesc(LocalDate dataInicio, LocalDate dataFim, Pageable pageable);
+    @EntityGraph(attributePaths = {"ativoValor", "ativoValor.ativo", "ativoUsuario"})
+    Optional<Page<Movimento>> findByDataMovimentoBetweenAndAtivoUsuario_CodigoUsuarioOrderByDataMovimentoDesc(LocalDate dataInicio,
+                                                                                                              LocalDate dataFim,
+                                                                                                              String codigoUsuario,
+                                                                                                              Pageable pageable);
 }

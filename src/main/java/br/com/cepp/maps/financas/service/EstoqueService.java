@@ -2,10 +2,10 @@ package br.com.cepp.maps.financas.service;
 
 import br.com.cepp.maps.financas.model.Estoque;
 import br.com.cepp.maps.financas.model.Movimento;
-import br.com.cepp.maps.financas.model.dominio.TipoMovimento;
 import br.com.cepp.maps.financas.repository.EstoqueRepository;
 import br.com.cepp.maps.financas.resource.handler.EstoqueNaoEncontradoException;
 import br.com.cepp.maps.financas.resource.handler.SaldoInsuficienteException;
+import br.com.cepp.maps.financas.utils.BigDecimalUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,8 +39,8 @@ public class EstoqueService {
         final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.DOWN),
                 movimento.getAtivoValor().getAtivo(), movimento.getDataMovimento(), BigDecimal.ZERO.setScale(2, RoundingMode.DOWN)));
 
-        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento());
-        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento());
+        final BigDecimal quantidade = BigDecimalUtils.ajustarValor(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento());
+        final BigDecimal valor = BigDecimalUtils.ajustarValor(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento());
 
         if(BigDecimal.ZERO.compareTo(quantidade) > 0 || BigDecimal.ZERO.compareTo(valor) > 0) {
             throw new SaldoInsuficienteException();
@@ -49,14 +49,6 @@ public class EstoqueService {
         final Estoque estoqueAtualizado = estoque.comQuantidadeEValor(quantidade, valor);
 
         this.repository.save(estoqueAtualizado);
-    }
-
-    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado,
-                                             final TipoMovimento tipoMovimento) {
-        final BigDecimal valorAjustado = TipoMovimento.COMPRA.equals(tipoMovimento) ? valor.negate() : valor;
-        return valorAcumulado
-                .add(valorAjustado)
-                    .setScale(2, RoundingMode.DOWN);
     }
 
     public Page<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") final LocalDate dataPosicao,

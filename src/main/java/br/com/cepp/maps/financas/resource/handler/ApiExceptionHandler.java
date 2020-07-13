@@ -56,7 +56,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ObjetoNaoEncontradoException.class)
     public ResponseEntity<Object> handleObjetoNaoEncontradoException(ObjetoNaoEncontradoException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+        return this.getRespostaErroPadrao(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ObjetoJaExisteException.class)
@@ -91,7 +91,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MovimentoNaoEcontradoException.class)
     public ResponseEntity<Object> handleMovimentoNaoEcontradoException(MovimentoNaoEcontradoException ex) {
-        return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
+        return this.getRespostaErroPadrao(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(MovimentoValorDiferenteException.class)

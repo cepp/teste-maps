@@ -284,7 +284,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 
@@ -316,7 +316,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
     }
 
     @Test
-    @WithMockUser(authorities={"ROLE_USER"})
+    @WithMockUser(username = "usuario0", authorities={"ROLE_USER"})
     void consultaPorData() {
         final String codigo = RandomStringUtils.random(10, true, true);
         final AtivoValor ativoValor = super.iniciarAtivoValor(codigo, TipoAtivo.RF, this.getDataDiaUtil());
@@ -440,7 +440,7 @@ class MovimentacaoResourceTest extends AbstractResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andReturn());
     }
 

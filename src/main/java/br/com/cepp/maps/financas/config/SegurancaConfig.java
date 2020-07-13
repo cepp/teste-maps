@@ -25,7 +25,8 @@ public class SegurancaConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .passwordEncoder(this.passwordEncoder())
-                .dataSource(dataSource).usersByUsernameQuery("select username,password,enabled "
+                .dataSource(dataSource)
+                .usersByUsernameQuery("select username,password,enabled "
                         + "from usuario "
                         + "where username = ?")
                 .authoritiesByUsernameQuery("select username,perfis "
@@ -36,7 +37,10 @@ public class SegurancaConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().and()
-                .authorizeRequests().anyRequest().authenticated()
+                .authorizeRequests()
+                .antMatchers("/v3/api-docs/**")
+                .permitAll()
+                .anyRequest().authenticated()
                 .and().httpBasic();
     }
 

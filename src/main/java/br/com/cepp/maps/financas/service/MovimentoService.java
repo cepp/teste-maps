@@ -1,6 +1,7 @@
 package br.com.cepp.maps.financas.service;
 
 import br.com.cepp.maps.financas.model.Ativo;
+import br.com.cepp.maps.financas.model.AtivoUsuario;
 import br.com.cepp.maps.financas.model.AtivoValor;
 import br.com.cepp.maps.financas.model.Estoque;
 import br.com.cepp.maps.financas.model.Movimento;
@@ -38,14 +39,17 @@ public class MovimentoService {
     private final EstoqueService estoqueService;
     private final ContaCorrenteService contaCorrenteService;
     private final AtivoValorService ativoValorService;
+    private final AtivoUsuarioService ativoUsuarioService;
 
     @Autowired
     public MovimentoService(final MovimentoRepository repository, final EstoqueService estoqueService,
-                            final ContaCorrenteService contaCorrenteService, final AtivoValorService ativoValorService) {
+                            final ContaCorrenteService contaCorrenteService, final AtivoValorService ativoValorService,
+                            final AtivoUsuarioService ativoUsuarioService) {
         this.repository = repository;
         this.estoqueService = estoqueService;
         this.contaCorrenteService = contaCorrenteService;
         this.ativoValorService = ativoValorService;
+        this.ativoUsuarioService = ativoUsuarioService;
     }
 
     @Transactional
@@ -64,8 +68,11 @@ public class MovimentoService {
                                      @NotNull(message = "Campo 'tipoMovimento' é obrigatório") final TipoMovimento tipoMovimento,
                                      @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario) {
         final Movimento movimento = this.converterDTOParaEntidade(requestDTO, tipoMovimento);
-        final Movimento movimentoPersistido = this.repository.save(movimento);
-        this.estoqueService.atualizaEstoque(movimentoPersistido);
+        final AtivoUsuario ativoUsuario = this.ativoUsuarioService.atualizar(requestDTO, codigoUsuario,
+                movimento.getAtivoValor().getAtivo(), tipoMovimento);
+        final Movimento movimentoComCodigoAtivoUsuario = movimento.comCodigoAtivoUsuario(ativoUsuario);
+        this.estoqueService.atualizaEstoque(movimentoComCodigoAtivoUsuario);
+        final Movimento movimentoPersistido = this.repository.save(movimentoComCodigoAtivoUsuario);
         final TipoNatureza tipoNatureza = TipoMovimento.COMPRA.equals(tipoMovimento) ? TipoNatureza.DEBITO : TipoNatureza.CREDITO;
         this.contaCorrenteService.atualizarSaldoMovimento(codigoUsuario, movimentoPersistido.getValor(), tipoNatureza, movimento.getDataMovimento());
     }
@@ -75,14 +82,15 @@ public class MovimentoService {
         final AtivoValor ativoValor = this.ativoValorService.buscarPorAtivoEData(requestDTO.getAtivo(), requestDTO.getData());
         this.validarDataMovimento(requestDTO, ativoValor.getAtivo());
         final BigDecimal valor = this.calcularValorMovimento(requestDTO, ativoValor);
-        return new Movimento(null, ativoValor, requestDTO.getData(), requestDTO.getQuantidade(), valor, tipoMovimento);
+        return new Movimento(null, ativoValor, requestDTO.getData(), requestDTO.getQuantidade(), valor, tipoMovimento, null);
     }
 
     public Page<MovimentoResponseDTO> buscarPosicaoPorPeriodo(@NotNull(message = "Campo 'dataInicio' é obrigatório") final LocalDate dataInicio,
                                                               @NotNull(message = "Campo 'dataFim' é obrigatório") final LocalDate dataFim,
-                                                              @NotNull(message = "Paginação é obrigatória") final Pageable pageable) {
-        Page<Movimento> movimentos = this.repository.findByDataMovimentoBetweenOrderByDataMovimentoDesc(dataInicio, dataFim, pageable)
-                .orElseThrow(() -> new MovimentoNaoEcontradoException(dataInicio, dataFim));
+                                                              @NotNull(message = "Paginação é obrigatória") final Pageable pageable,
+                                                              @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario) {
+        Page<Movimento> movimentos = this.repository.findByDataMovimentoBetweenAndAtivoUsuario_CodigoUsuarioOrderByDataMovimentoDesc(dataInicio,
+                dataFim, codigoUsuario, pageable).orElseThrow(() -> new MovimentoNaoEcontradoException(dataInicio, dataFim));
 
         if(movimentos.isEmpty()) {
             throw new MovimentoNaoEcontradoException(dataInicio, dataFim);
