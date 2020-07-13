@@ -39,4 +39,4 @@ spring:
     deserialization:
       failOnUnknownProperties: true
   profiles:
-    active: dev
+    active: prod
