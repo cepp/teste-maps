@@ -7,6 +7,10 @@ app:
   build:
     version: '@project.version@'
 
+jasypt:
+  encryptor:
+    password: sfirgni74wigtoc747f87egf06sedsff9c7ds965dvstfvsg
+
 # logging
 logging:
   pattern:

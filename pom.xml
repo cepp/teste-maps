@@ -30,6 +30,7 @@
         <jackson.datatype.jsr310.version>2.4.0</jackson.datatype.jsr310.version>
         <skip.it.test>false</skip.it.test>
         <springdoc.openapi.ui.version>1.4.3</springdoc.openapi.ui.version>
+        <jasypt.version>2.0.0</jasypt.version>
     </properties>
 
     <dependencies>
@@ -90,6 +91,11 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
+            <version>${jasypt.version}</version>
         </dependency>
 
         <dependency>
