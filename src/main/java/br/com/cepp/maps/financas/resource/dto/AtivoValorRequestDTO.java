@@ -12,6 +12,7 @@ import lombok.ToString;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 public class AtivoValorRequestDTO implements Serializable {
     private static final long serialVersionUID = -2394763346833853202L;
 
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'codigo' inválido")
     @NotEmpty(message = "Campo 'codigoAtivo' é obrigatório")
     private final String codigoAtivo;
     @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
@@ -33,8 +35,11 @@ public class AtivoValorRequestDTO implements Serializable {
     private final BigDecimal valor;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public AtivoValorRequestDTO(@JsonProperty(value = "codigoAtivo") @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
-                                @JsonProperty(value = "data") @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate data,
+    public AtivoValorRequestDTO(@JsonProperty(value = "codigoAtivo")
+                                    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'codigo' inválido")
+                                    @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
+                                @JsonProperty(value = "data")
+                                    @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate data,
                                 @JsonProperty(value = "valor")
                                     @Digits(integer = 8, fraction = 8, message = "Campo 'valor' inválido")
                                     @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor) {

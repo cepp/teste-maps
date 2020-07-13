@@ -12,6 +12,7 @@ import lombok.ToString;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 public class MovimentoRequestDTO implements Serializable {
     private static final long serialVersionUID = -8325791071527501443L;
 
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'ativo' inválido")
     @NotEmpty(message = "Campo 'ativo' é obrigatório")
     private final String ativo;
     @JsonDeserialize(using = FinancasLocalDateDeserializer.class)
@@ -31,13 +33,25 @@ public class MovimentoRequestDTO implements Serializable {
     @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
     @NotNull(message = "Campo 'quantidade' é obrigatório")
     private final BigDecimal quantidade;
+    @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
+    @NotNull(message = "Campo 'valor' é obrigatório")
+    private final BigDecimal valor;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public MovimentoRequestDTO(@JsonProperty(value = "ativo") @NotEmpty(message = "Campo 'ativo' é obrigatório") String ativo,
-                               @JsonProperty(value = "data") @NotNull(message = "Campo 'data' é obrigatório") LocalDate data,
-                               @JsonProperty(value = "quantidade") @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido") @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade) {
+    public MovimentoRequestDTO(@JsonProperty(value = "ativo")
+                                   @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'ativo' inválido")
+                                   @NotEmpty(message = "Campo 'ativo' é obrigatório") String ativo,
+                               @JsonProperty(value = "data")
+                                   @NotNull(message = "Campo 'data' é obrigatório") LocalDate data,
+                               @JsonProperty(value = "quantidade")
+                                   @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
+                                   @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade,
+                               @JsonProperty(value = "valor")
+                                   @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
+                                   @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor) {
         this.ativo = ativo;
         this.data = data;
         this.quantidade = quantidade;
+        this.valor = valor;
     }
 }

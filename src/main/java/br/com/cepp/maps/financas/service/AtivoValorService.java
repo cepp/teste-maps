@@ -18,6 +18,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -27,7 +28,7 @@ public class AtivoValorService {
     private final AtivoService ativoService;
 
     @Autowired
-    public AtivoValorService(AtivoValorRepository repository, AtivoService ativoService) {
+    public AtivoValorService(final AtivoValorRepository repository, final AtivoService ativoService) {
         this.repository = repository;
         this.ativoService = ativoService;
     }
@@ -66,5 +67,10 @@ public class AtivoValorService {
     public boolean existsPorAtivoEData(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatório") final String codigoAtivo,
                                        @NotNull(message = "Campo 'data' é obrigatório") final LocalDate data) {
         return this.repository.existsAtivoValorByAtivo_CodigoAndData(codigoAtivo, data);
+    }
+
+    @Transactional
+    public void salvar(final List<AtivoValor> ativoValores) {
+        this.repository.saveAll(ativoValores);
     }
 }

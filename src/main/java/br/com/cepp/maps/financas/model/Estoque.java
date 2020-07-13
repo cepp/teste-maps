@@ -1,10 +1,8 @@
 package br.com.cepp.maps.financas.model;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -24,7 +22,6 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode
 @ToString
 @Entity
@@ -34,25 +31,33 @@ public class Estoque implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final Long id;
     @DecimalMin(value = "0.00", message = "Campo 'quantidade' inválido")
     @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
     @NotNull(message = "Campo 'quantidade' é obrigatório")
-    private BigDecimal quantidade;
+    private final BigDecimal quantidade;
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Ativo ativo;
+    private final Ativo ativo;
     @NotNull(message = "Campo 'dataPosicao' é obrigatório")
-    private LocalDate dataPosicao;
+    private final LocalDate dataPosicao;
     @DecimalMin(value = "0.00", message = "Campo 'valor' inválido")
-    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
+    @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
-    private BigDecimal valor;
+    private final BigDecimal valor;
+
+    private Estoque() {
+        this.id = null;
+        this.quantidade = null;
+        this.ativo = null;
+        this.dataPosicao = null;
+        this.valor = null;
+    }
 
     public Estoque comQuantidadeEValor(@DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
                                        @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
                                        @NotNull(message = "Campo 'quantidade' é obrigatório") BigDecimal quantidade,
-                                       @Digits(integer = 8, fraction = 0, message = "Campo 'valor' inválido")
+                                       @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
                                        @NotNull(message = "Campo 'valor' é obrigatório") BigDecimal valor) {
         return new Estoque(this.id, quantidade, this.ativo, this.dataPosicao, valor);
     }

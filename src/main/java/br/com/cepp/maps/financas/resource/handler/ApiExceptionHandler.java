@@ -94,6 +94,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return this.getRespostaErroPadrao(HttpStatus.NO_CONTENT, ex.getMessage());
     }
 
+    @ExceptionHandler(MovimentoValorDiferenteException.class)
+    public ResponseEntity<Object> handleMovimentoValorDiferenteException(MovimentoValorDiferenteException ex) {
+        return this.getRespostaErroPadrao(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     private ResponseEntity<Object> getRespostaErroPadrao(HttpStatus httpStatus, String message) {
         return ResponseEntity.status(httpStatus).body(message);
     }

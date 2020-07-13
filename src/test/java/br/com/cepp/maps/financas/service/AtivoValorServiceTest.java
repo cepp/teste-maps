@@ -66,7 +66,7 @@ class AtivoValorServiceTest extends AbstractDataTest {
 
     @Test
     void incluirAtivoNaoExiste() {
-        final AtivoValorRequestDTO ativoValorRequestDTO = super.getAtivoValorRequestDTOMock(UUID.randomUUID().toString());
+        final AtivoValorRequestDTO ativoValorRequestDTO = super.getAtivoValorRequestDTOMock(RandomStringUtils.random(8, true, true));
         assertThrows(AtivoNaoEncontradoException.class, () -> this.service.incluir(ativoValorRequestDTO));
     }
 

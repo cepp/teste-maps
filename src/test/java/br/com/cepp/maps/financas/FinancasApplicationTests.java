@@ -1,7 +1,6 @@
 package br.com.cepp.maps.financas;
 
-import br.com.cepp.maps.financas.service.ContaCorrenteService;
-import lombok.extern.log4j.Log4j2;
+import br.com.cepp.maps.financas.config.LoadDataConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class FinancasApplicationTests {
 
     @Autowired
-    private ContaCorrenteService service;
+    private LoadDataConfig loadDataConfig;
 
     @Test
     void contextLoads() {
-        assertNotNull(this.service);
+        assertNotNull(this.loadDataConfig);
     }
 
 }

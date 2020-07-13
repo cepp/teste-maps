@@ -4,16 +4,20 @@ import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoValorRequestTestDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.tomcat.util.file.Matcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import static br.com.cepp.maps.financas.config.MockMvcConfig.UTF_8;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,11 +31,11 @@ class AtivoResourceTest extends AbstractResourceTest {
     private static final String URI_V1 = "/ativos/";
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluir() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -42,12 +46,39 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_USER"})
+    void incluirNaoAutorizado() {
+        final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ativoRequestTestDTO.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isForbidden())
+                .andReturn());
+    }
+
+    @Test
+    void incluirNaoAutenticado() {
+        final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
+
+        assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ativoRequestTestDTO.toJson())
+                .characterEncoding(UTF_8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isUnauthorized())
+                .andReturn());
+    }
+
+    @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluirValidarRequest() {
         final AtivoRequestTestDTO validarCodigo = super.getAtivoRequestDTOMock();
         validarCodigo.setCodigo(null);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarCodigo.toJson())
                 .characterEncoding(UTF_8))
@@ -59,13 +90,12 @@ class AtivoResourceTest extends AbstractResourceTest {
         validarCodigo.setCodigo(Strings.EMPTY);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validarCodigo.toJson())
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("[Campo 'codigo' é obrigatório]"))
+                .andExpect(content().string(containsString("Campo 'codigo'")))
                 .andReturn());
 
         final AtivoRequestTestDTO validarNome = super.getAtivoRequestDTOMock();
@@ -90,7 +120,7 @@ class AtivoResourceTest extends AbstractResourceTest {
                 .characterEncoding(UTF_8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("[Campo 'nome' é obrigatório]"))
+                .andExpect(content().string(containsString("Campo 'nome'")))
                 .andReturn());
 
         final AtivoRequestTestDTO validarTipo = super.getAtivoRequestDTOMock();
@@ -132,6 +162,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluirAtivoJaExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -156,6 +187,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluirAtivoPeriodoInvalido() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock(LocalDate.now().plusDays(2),
                 LocalDate.now());
@@ -171,6 +203,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void alterar() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -198,6 +231,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void alterarAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -212,6 +246,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void alterarValidarPathParam() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -226,6 +261,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void remover() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -250,6 +286,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void removerAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -263,6 +300,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void removerAtivoUtilizado() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -297,6 +335,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void removerValidarPathParam() {
         assertDoesNotThrow(() -> super.getMockMvc().perform(delete(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
@@ -308,6 +347,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN", "ROLE_USER"})
     void consultaPorCodigo() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -331,6 +371,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN", "ROLE_USER"})
     void consultaPorCodigoAtivoNaoExiste() {
         final AtivoRequestTestDTO ativoRequestTestDTO = super.getAtivoRequestDTOMock();
 
@@ -344,6 +385,7 @@ class AtivoResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN", "ROLE_USER"})
     void consultaPorCodigoValidarPathParam() {
         assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1)
                 .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())

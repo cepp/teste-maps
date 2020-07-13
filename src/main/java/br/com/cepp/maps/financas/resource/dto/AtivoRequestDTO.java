@@ -14,6 +14,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -23,8 +24,10 @@ import java.time.LocalDate;
 public class AtivoRequestDTO implements Serializable {
     private static final long serialVersionUID = -2394763346833853202L;
 
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'codigo' inválido")
     @NotEmpty(message = "Campo 'codigo' é obrigatório")
     private final String codigo;
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'nome' inválido")
     @NotEmpty(message = "Campo 'nome' é obrigatório")
     private final String nome;
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
@@ -40,11 +43,18 @@ public class AtivoRequestDTO implements Serializable {
     private final LocalDate dataVencimento;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public AtivoRequestDTO(@JsonProperty(value = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
-                           @JsonProperty(value = "nome") @NotEmpty(message = "Campo 'nome' é obrigatório") String nome,
-                           @JsonProperty(value = "tipoAtivo") @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo,
-                           @JsonProperty(value = "dataEmissao") @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate dataEmissao,
-                           @JsonProperty(value = "dataVencimento") @NotNull(message = "Campo 'dataVencimento' é obrigatório") LocalDate dataVencimento) {
+    public AtivoRequestDTO(@JsonProperty(value = "codigo")
+                               @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'codigo' inválido")
+                               @NotEmpty(message = "Campo 'codigo' é obrigatório") String codigo,
+                           @JsonProperty(value = "nome")
+                               @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'nome' inválido")
+                               @NotEmpty(message = "Campo 'nome' é obrigatório") String nome,
+                           @JsonProperty(value = "tipoAtivo")
+                               @NotNull(message = "Campo 'tipoAtivo' é obrigatório") TipoAtivo tipoAtivo,
+                           @JsonProperty(value = "dataEmissao")
+                               @NotNull(message = "Campo 'dataEmissao' é obrigatório") LocalDate dataEmissao,
+                           @JsonProperty(value = "dataVencimento")
+                               @NotNull(message = "Campo 'dataVencimento' é obrigatório") LocalDate dataVencimento) {
         this.codigo = codigo;
         this.nome = nome;
         this.tipoAtivo = tipoAtivo;
