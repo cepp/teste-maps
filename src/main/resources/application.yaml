@@ -38,8 +38,6 @@ spring:
   jackson:
     deserialization:
       failOnUnknownProperties: true
-  profiles:
-    active: dev
 
 springdoc:
   apiDocs:
