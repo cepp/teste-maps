@@ -39,4 +39,14 @@ spring:
     deserialization:
       failOnUnknownProperties: true
   profiles:
-    active: prod
+    active: dev
+
+springdoc:
+  apiDocs:
+    enabled: true
+  packagesToScan: br.com.cepp.maps.financas.resource
+  swagger-ui:
+    disableSwaggerDefaultUrl: true
+  writerWithDefaultPrettyPrinter: true
+  defaultConsumesMediaType: application/json
+  defaultProducesMediaType: application/json

@@ -8,13 +8,19 @@ A versão Java utilizada para criar o projeto foi a 1.8 que é a versão pré-co
 ### Maven
 Projeto foi criado usando o controle de dependências [Apache Maven](https://maven.apache.org/), para contruir o projeto 
 é necessário executar no terminal o seguinte comando:
-> mvn package
+> mvn install
 
-Ao terminar a construção do projeto, será criada a pastar __target__ com o código compilado do projeto e na pasta __site__ 
-pode-se encontrar o relatório de execução dos testes unitários surefire-report.html e o relatório de cobertura de testes 
-__jacoco/indext.html__
+Por padrão os testes integrados estão desabilitados para não gerar overhead na implantação do projeto no [Heroku](https://www.heroku.com), 
+para habilitar, basta executar o comando no terminal:
+> mvn install -Dskip.it.test=false
 
-O artefato compilado depois da instalação é o __financas-1.0.0.jar__ que será levantado no servidor para apresentação.
+
+Após a instalação do projeto serão criados os seguintes artefatos na pasta __target__:
+* __financas-1.0.0.jar__ é o artefato principal criado pelo projeto, que será implantado no [Heroku](https://www.heroku.com)
+* __site/surefire-report.html__ relatório dos testes unitários
+* __site/jacoco/index.html__ relatório da cobertura de código
+* __site/swagger.html__ documentação da API utilizando a especificação OpenAPI 3.0.0 no formato Html e utilizando o 
+padrão do [redoc(https://github.com/Redocly/redoc)], que é o mesmo utilizado pelo [DICT API](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/api-dict.html)
 
 ### Banco de dados
 Foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de configuração e 
@@ -23,19 +29,25 @@ facilitar na implantação do projeto na nuvem.
 ### Http Status
 A definição do Http Status pode ser visualizada na [documentação da API](docs/swagger.html) ou nos itens abaixo:
 * `200`: será retornado como caso de sucesso da API
-* `204`: será retornado quando não for encontrado algum dado do banco de dados
 * `400`: retornará erros de validação e negócio
 * `401`: quando o usuário não estiver autenticado
 * `403`: quando o usuário não for autorizado a acessar o recurso
-* `404`: quando um recurso não for encontrado
+* `404`: será retornado quando não for encontrado algum dado do banco de dados
 * `409`: quando tentar fazer uma operação que não é a responsabilidade do recurso, exemplo de alterar no recurso de inclusão 
 * `500`: quando houver um erro não esperado na aplicação
 
-### Tecnologias escolhidas
-......
 
 ### Deployment Aplicação
-.....
+O deploy da aplicação foi realizado no [Heroku](https://www.heroku.com) e pode ser acessada a partir do [link](https://financas-maps.herokuapp.com/financas)
+Não foi implementada a parte Web, mas como o projeto foi criado desde o início com a documentação do swagger, estou deixando
+o [swagger-ui](https://financas-maps.herokuapp.com/financas/swagger-ui.html) habilitado para que possam utilizar, ao acessar
+abrirá um prompt no navegador para colocar as credenciais, então colocar o usuário root ou os usuários usuario0 - usuario17.
+
+No processo de implantação, tive que criar um App no Heroku, que chamei de __financas-maps__, então fui na área de __Deploy__
+e escolhi o método de deploy do [Github](), fazendo a vinculação e dando privilégios da minha conta à conta do Heroku, 
+então fui na opção __Manual deploy__ e pressionei o botão __Deploy Branch__, então o Heroku faz o clone do projeto, 
+construi o projeto usando o Maven, depois executa o artefato, disponibilizando a aplicação no [link](https://financas-maps.herokuapp.com/financas).
+
 
 ### Thread-safe
 Uma das alternativas escolhidas para atender a solicitação do Thread-safe, foi de tornar as classes de modelo e DTO 
@@ -47,12 +59,6 @@ concorrência todas as variáveis foram declaradas como __final__.
 Em todos os métodos que fazem escrita no banco de dados são anotados com @Transactional do Spring com o intuito de evitar
 que o problema da concorrência de escrita no banco de dados.
 
-
-### Desempenho
-.....
-
-### Teste desempenho
-.....
 
 ### Segurança
 Para fazer a segurança da API foi utilizado o Spring Security, armazenando os usuários e senha no banco de dados. 

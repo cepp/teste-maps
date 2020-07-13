@@ -4,10 +4,11 @@ import br.com.cepp.maps.financas.model.Ativo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.service.AtivoService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Log4j2
 @Api(value = "Ativos", tags = {"Ativos"})
@@ -45,15 +45,22 @@ public class AtivoResource {
     }
 
     @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Incluir Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
-            @ApiResponse(code = 204, message = "Registro não encontrado"),
-            @ApiResponse(code = 400, message = "Erro de validação"),
-            @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 404, message = "Não encontrado"),
-            @ApiResponse(code = 409, message = "Recurso já existe"),
-            @ApiResponse(code = 500, message = "Erro interno")
+    @Operation(summary = "Cadastro de Ativo", description = "Cadastro de Ativo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = MSG_OPERACAO_REALIZADA_COM_SUCESSO, content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400", description = "Erro de validação", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "401", description = "Não autorizado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "403", description = "Acesso proibido ao usuário", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "404", description = "Não encontrado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "409", description = "Registro já existe", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "500", description = "Erro interno", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) })
     })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> incluir(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final AtivoRequestDTO ativoRequestDTO) {
@@ -62,14 +69,20 @@ public class AtivoResource {
     }
 
     @PutMapping(path = "/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Alterar Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
-            @ApiResponse(code = 204, message = "Registro não encontrado"),
-            @ApiResponse(code = 400, message = "Erro de validação"),
-            @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 404, message = "Não encontrado"),
-            @ApiResponse(code = 500, message = "Erro interno")
+    @Operation(summary = "Alteração de Ativo", description = "Alteração de Ativo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = MSG_OPERACAO_REALIZADA_COM_SUCESSO, content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400", description = "Erro de validação", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "401", description = "Não autorizado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "403", description = "Acesso proibido ao usuário", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "404", description = "Não encontrado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "500", description = "Erro interno", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) })
     })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> alterar(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final AtivoRequestDTO ativoRequestDTO,
@@ -79,14 +92,20 @@ public class AtivoResource {
     }
 
     @DeleteMapping(path = "/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Remover Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
-            @ApiResponse(code = 204, message = "Registro não encontrado"),
-            @ApiResponse(code = 400, message = "Erro de validação"),
-            @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 404, message = "Não encontrado"),
-            @ApiResponse(code = 500, message = "Erro interno")
+    @Operation(summary = "Remover Ativo", description = "Remover de Ativo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = MSG_OPERACAO_REALIZADA_COM_SUCESSO, content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400", description = "Erro de validação", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "401", description = "Não autorizado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "403", description = "Acesso proibido ao usuário", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "404", description = "Não encontrado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "500", description = "Erro interno", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) })
     })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> remover(@PathVariable(name = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatorio") String codigo) {
@@ -95,14 +114,20 @@ public class AtivoResource {
     }
 
     @GetMapping(path="/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Consulta Saldo da Conta", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
-            @ApiResponse(code = 204, message = "Registro não encontrado"),
-            @ApiResponse(code = 400, message = "Erro de validação"),
-            @ApiResponse(code = 401, message = "Não autorizado"),
-            @ApiResponse(code = 404, message = "Não encontrado"),
-            @ApiResponse(code = 500, message = "Erro interno")
+    @Operation(summary = "Consulta posição do ativo por código", description = "Consulta Posição Ativo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = MSG_OPERACAO_REALIZADA_COM_SUCESSO, content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400", description = "Erro de validação", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "401", description = "Não autorizado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "403", description = "Acesso proibido ao usuário", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "404", description = "Não encontrado", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "500", description = "Erro interno", content = { @Content(mediaType = MimeTypeUtils.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)) })
     })
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<AtivoRequestDTO> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {

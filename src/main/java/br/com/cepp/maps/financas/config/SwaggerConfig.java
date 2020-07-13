@@ -1,6 +1,11 @@
 package br.com.cepp.maps.financas.config;
 
 import com.google.common.collect.Lists;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,5 +45,24 @@ public class SwaggerConfig {
 
     private ApiKey apiKey() {
         return new ApiKey("Authorization", "Authorization", "header");
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("API de Finanças Pessoais")
+                        .version(this.appBuildVersion)
+                        .contact(new Contact().name("Desenvolvedor").email("ceppantoja@gmail.com").url("https://br.linkedin.com/in/ceppantoja/pt"))
+                        .description("API criada para participar do processo seletivo da MAPS para desenvolvedor Java")
+                        .termsOfService("http://swagger.io/terms/")
+                        .license(new License().name("Apache 2.0").url("http://springdoc.org")))
+
+                .schemaRequirement("http", new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .description("Servidor de autenticação TOTVS")
+                        .name("Servidor de autenticação TOTVS")
+                        .in(SecurityScheme.In.HEADER)
+                        .scheme("basic"));
     }
 }
