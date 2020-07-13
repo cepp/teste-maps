@@ -22,6 +22,11 @@ Após a instalação do projeto serão criados os seguintes artefatos na pasta _
 * __site/swagger.html__ documentação da API utilizando a especificação OpenAPI 3.0.0 no formato Html e utilizando o 
 padrão do [redoc](https://github.com/Redocly/redoc), que é o mesmo utilizado pelo [DICT API](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/api-dict.html)
 
+### Executar projeto Standalone
+Para executar o projeto em local, é necessário construir o projeto com o maven, que foi descrito anteriormente, depois 
+executar o seguindo comando no terminal:
+> java -jar -Dspring.profiles.active=dev target/financas-1.0.0.jar
+
 ### Banco de dados
 Inicialmente foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de 
 configuração e facilitar na implantação do projeto na nuvem, mas o servidor escolhido não possui suporte ao banco de 
