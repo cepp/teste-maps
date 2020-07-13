@@ -2,7 +2,8 @@
 Sistema criado para participar do processo seletivo da MAPS
 
 ### Java
-A versão Java utilizada para criar o projeto foi a 14
+A versão Java utilizada para criar o projeto foi a 1.8 que é a versão pré-configurada no servidor que será implantado 
+[Heroku](https://www.heroku.com)
 
 ### Maven
 Projeto foi criado usando o controle de dependências [Apache Maven](https://maven.apache.org/), para contruir o projeto 

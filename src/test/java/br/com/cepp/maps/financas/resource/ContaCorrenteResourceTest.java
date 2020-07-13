@@ -233,7 +233,7 @@ class ContaCorrenteResourceTest extends AbstractResourceTest {
     @Test
     @WithMockUser(authorities={"ROLE_USER"})
     void consultaNoContent() {
-        final String data = LocalDate.now().minusDays(4).format(DateTimeFormatter.ISO_DATE);
+        final String data = LocalDate.now().plusMonths(4).format(DateTimeFormatter.ISO_DATE);
         assertDoesNotThrow(() -> super.getMockMvc().perform(get(URI_V1.concat("/saldo"))
                 .queryParam("data", data)
                 .contentType(MediaType.APPLICATION_JSON)
