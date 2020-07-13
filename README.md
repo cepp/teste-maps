@@ -20,7 +20,7 @@ Após a instalação do projeto serão criados os seguintes artefatos na pasta _
 * __site/surefire-report.html__ relatório dos testes unitários
 * __site/jacoco/index.html__ relatório da cobertura de código
 * __site/swagger.html__ documentação da API utilizando a especificação OpenAPI 3.0.0 no formato Html e utilizando o 
-padrão do [redoc(https://github.com/Redocly/redoc)], que é o mesmo utilizado pelo [DICT API](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/api-dict.html)
+padrão do [redoc](https://github.com/Redocly/redoc), que é o mesmo utilizado pelo [DICT API](https://www.bcb.gov.br/content/estabilidadefinanceira/forumpireunioes/api-dict.html)
 
 ### Banco de dados
 Foi escolhido o banco de dados [H2](https://www.h2database.com/html/main.html) para poupar tempo de configuração e 
