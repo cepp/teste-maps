@@ -33,14 +33,14 @@ public class EstoqueService {
     }
 
     @Transactional
-    public void atualizaEstoque(@Valid @NotNull(message = "Movimento é obrigatório") Movimento movimento) {
+    public void atualizaEstoque(@Valid @NotNull(message = "Movimento é obrigatório") final Movimento movimento) {
         Optional<Estoque> optionalEstoque = this.repository.findByAtivo_CodigoAndDataPosicao(movimento.getAtivoValor().getAtivo().getCodigo(), movimento.getDataMovimento());
 
         final Estoque estoque = optionalEstoque.orElse(new Estoque(null, BigDecimal.ZERO.setScale(2, RoundingMode.DOWN),
-                movimento.getAtivoValor().getAtivo(), movimento.getDataMovimento(), BigDecimal.ZERO.setScale(0, RoundingMode.DOWN)));
+                movimento.getAtivoValor().getAtivo(), movimento.getDataMovimento(), BigDecimal.ZERO.setScale(2, RoundingMode.DOWN)));
 
-        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento(), 2);
-        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento(), 0);
+        final BigDecimal quantidade = this.getBigDecimalAjustado(movimento.getQuantidade(), estoque.getQuantidade(), movimento.getTipoMovimento());
+        final BigDecimal valor = this.getBigDecimalAjustado(movimento.getValor(), estoque.getValor(), movimento.getTipoMovimento());
 
         if(BigDecimal.ZERO.compareTo(quantidade) > 0 || BigDecimal.ZERO.compareTo(valor) > 0) {
             throw new SaldoInsuficienteException();
@@ -51,15 +51,16 @@ public class EstoqueService {
         this.repository.save(estoqueAtualizado);
     }
 
-    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado, TipoMovimento tipoMovimento, Integer precisao) {
+    private BigDecimal getBigDecimalAjustado(final BigDecimal valor, final BigDecimal valorAcumulado,
+                                             final TipoMovimento tipoMovimento) {
         final BigDecimal valorAjustado = TipoMovimento.COMPRA.equals(tipoMovimento) ? valor.negate() : valor;
         return valorAcumulado
                 .add(valorAjustado)
-                    .setScale(precisao, RoundingMode.DOWN);
+                    .setScale(2, RoundingMode.DOWN);
     }
 
-    public Page<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") LocalDate dataPosicao,
-                                              Pageable pageable) {
+    public Page<Estoque> buscarPorDataPosicao(@NotNull(message = "Campo 'dataPosicao' é obrigatório") final LocalDate dataPosicao,
+                                              @NotNull(message = "Paginação é obrigatória") final Pageable pageable) {
         Page<Estoque> pageEstoque = this.repository.findByDataPosicao(dataPosicao, pageable)
                 .orElseThrow(() -> new EstoqueNaoEncontradoException(dataPosicao));
 

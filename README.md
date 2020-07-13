@@ -24,7 +24,8 @@ A definição do Http Status pode ser visualizada na [documentação da API](doc
 * `200`: será retornado como caso de sucesso da API
 * `204`: será retornado quando não for encontrado algum dado do banco de dados
 * `400`: retornará erros de validação e negócio
-* `401`: quando o usuário não for autorizado a acessar o recurso
+* `401`: quando o usuário não estiver autenticado
+* `403`: quando o usuário não for autorizado a acessar o recurso
 * `404`: quando um recurso não for encontrado
 * `409`: quando tentar fazer uma operação que não é a responsabilidade do recurso, exemplo de alterar no recurso de inclusão 
 * `500`: quando houver um erro não esperado na aplicação
@@ -37,9 +38,14 @@ A definição do Http Status pode ser visualizada na [documentação da API](doc
 
 ### Thread-safe
 Uma das alternativas escolhidas para atender a solicitação do Thread-safe, foi de tornar as classes de modelo e DTO 
-imutáveis, evitando que uma Thread possa substituir o valor da outra.
+imutáveis, pra isso não foi criado nenhum SETTER, o construtor sem argumentos está marcado com o modificador de acesso 
+PRIVATE, para fazer alguma mudança no estado do objeto, é preciso criar uma nova instância dele, evitando que uma Thread 
+possa substituir o valor da outra. Como as classes de serviço e Controller Rest não são thread-safe, para minimizar a 
+concorrência todas as variáveis foram declaradas como __final__. 
 
-....
+Em todos os métodos que fazem escrita no banco de dados são anotados com @Transactional do Spring com o intuito de evitar
+que o problema da concorrência de escrita no banco de dados.
+
 
 ### Desempenho
 .....
@@ -48,3 +54,10 @@ imutáveis, evitando que uma Thread possa substituir o valor da outra.
 .....
 
 ### Segurança
+Para fazer a segurança da API foi utilizado o Spring Security, armazenando os usuários e senha no banco de dados. 
+Como todo o projeto foi criado usando Spring, o módulo de segurança seria mais facilmente acoplado ao projeto e também 
+atende à demanda de fazer a autorização dos usuários via banco de dados.
+
+Não foi criada uma estrtura de dados nova, porque o Spring Sercurity já possui essa estrutura, e atende ao solicitado.
+
+Foram criados dois perfis, como solicitado, um de administrado (ADMIN) e outro para os usuários de 0-9 do sistema (USER).

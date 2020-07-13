@@ -1,11 +1,9 @@
 package br.com.cepp.maps.financas.model;
 
 import br.com.cepp.maps.financas.model.dominio.TipoMovimento;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -27,7 +25,6 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
 @Entity
@@ -37,21 +34,30 @@ public class Movimento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long codigo;
+    private final Long codigo;
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private AtivoValor ativoValor;
+    private final AtivoValor ativoValor;
     @NotNull(message = "Campo 'dataMovimento' é obrigatório")
-    private LocalDate dataMovimento;
+    private final LocalDate dataMovimento;
     @DecimalMin(value = "0.01", message = "Campo 'quantidade' inválido")
     @Digits(integer = 8, fraction = 2, message = "Campo 'quantidade' inválido")
     @NotNull(message = "Campo 'quantidade' é obrigatório")
-    private BigDecimal quantidade;
+    private final BigDecimal quantidade;
     @DecimalMin(value = "0.01", message = "Campo 'valor' inválido")
-    @Digits(integer = 15, fraction = 0, message = "Campo 'valor' inválido")
+    @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
-    private BigDecimal valor;
+    private final BigDecimal valor;
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Campo 'tipoMovimento'é obrigatório")
-    private TipoMovimento tipoMovimento;
+    private final TipoMovimento tipoMovimento;
+
+    private Movimento() {
+        this.codigo = null;
+        this.ativoValor = null;
+        this.dataMovimento = null;
+        this.quantidade = null;
+        this.valor = null;
+        this.tipoMovimento = null;
+    }
 }

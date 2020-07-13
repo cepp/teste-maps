@@ -24,7 +24,12 @@ class MovimentoServiceTest extends AbstractDataTest {
 
     @Test
     void compra() {
-
+        final LocalDate dataDepoisVencimento = super.getDataDiaUtil().plusDays(5);
+        final String codigo = RandomStringUtils.random(8, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, dataDepoisVencimento);
+        MovimentoRequestDTO movimentoDataDepoisVencimento = super.getMovimentoRequestDTOMock(codigo, dataDepoisVencimento);
+        assertThrows(AtivoPeriodoInvalidoException.class, () -> service.venda(movimentoDataDepoisVencimento, CODIGO_USUARIO_GLOBAL));
+        assertThrows(AtivoPeriodoInvalidoException.class, () -> service.compra(movimentoDataDepoisVencimento, CODIGO_USUARIO_GLOBAL));
     }
 
     @Test
@@ -50,14 +55,11 @@ class MovimentoServiceTest extends AbstractDataTest {
 
     @Test
     void venda() {
-    }
-
-    @Test
-    void buscarPosicaoPorCodigoEData() {
-    }
-
-    @Test
-    void buscarPorDataPosicao() {
+        final LocalDate dataDepoisVencimento = super.getDataDiaUtil().plusDays(5);
+        final String codigo = RandomStringUtils.random(8, true, true);
+        super.iniciarAtivoValor(codigo, TipoAtivo.RV, dataDepoisVencimento);
+        MovimentoRequestDTO movimentoDataDepoisVencimento = super.getMovimentoRequestDTOMock(codigo, dataDepoisVencimento);
+        assertThrows(AtivoPeriodoInvalidoException.class, () -> service.venda(movimentoDataDepoisVencimento, CODIGO_USUARIO_GLOBAL));
     }
 
 }

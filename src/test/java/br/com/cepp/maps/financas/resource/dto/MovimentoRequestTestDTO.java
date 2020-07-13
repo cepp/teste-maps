@@ -9,4 +9,5 @@ public class MovimentoRequestTestDTO implements InterfaceTestDTO {
     private String ativo;
     private String data;
     private String quantidade;
+    private String valor;
 }

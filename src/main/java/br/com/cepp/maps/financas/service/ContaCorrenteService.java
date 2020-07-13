@@ -43,19 +43,19 @@ public class ContaCorrenteService {
         }
 
         BigDecimal valorAtualizar = natureza.isDebito() ? valor.negate() : valor;
-        BigDecimal saldoAtualizado = contaCorrente.getSaldoConta().setScale(0, RoundingMode.DOWN)
-                .add(valorAtualizar.setScale(0, RoundingMode.DOWN)).setScale(0, RoundingMode.DOWN);
+        BigDecimal saldoAtualizado = contaCorrente.getSaldoConta().setScale(2, RoundingMode.DOWN)
+                .add(valorAtualizar.setScale(2, RoundingMode.DOWN)).setScale(2, RoundingMode.DOWN);
         return this.repository.save(contaCorrente.comSaldoAtualizado(saldoAtualizado));
     }
 
     @Transactional
-    public ContaCorrente incluirPosicaoContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario,
+    public ContaCorrente incluirPosicaoContaCorrente(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
                                                      @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
         if(this.repository.existsByCodigoUsuarioAndData(codigoUsuario, dataMovimento)) {
             throw new ContaPosicaoJaExisteException(codigoUsuario, dataMovimento);
         }
 
-        BigDecimal saldoAnterior = BigDecimal.ZERO.setScale(0, RoundingMode.DOWN);
+        BigDecimal saldoAnterior = BigDecimal.ZERO.setScale(2, RoundingMode.DOWN);
         final LocalDate dataInicial = LocalDate.now();
         if(dataInicial.compareTo(dataMovimento) != 0) {
             if (!this.repository.existsByCodigoUsuario(codigoUsuario)) {
@@ -78,12 +78,12 @@ public class ContaCorrenteService {
         return this.atualizarSaldo(codigoUsuario, valor, natureza, data);
     }
 
-    public ContaCorrente buscarContaCorrentePorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario,
+    public ContaCorrente buscarContaCorrentePorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
                                                              @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
         return this.buscarPorCodigoUsuario(codigoUsuario, dataMovimento).orElseThrow(() -> new ContaNaoEncontradaException(codigoUsuario, dataMovimento));
     }
 
-    private Optional<ContaCorrente> buscarPorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario,
+    private Optional<ContaCorrente> buscarPorCodigoUsuario(@NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario,
                                                            @NotNull(message = "Campo 'dataMovimento' é obrigatório") final LocalDate dataMovimento) {
         return this.repository.findByCodigoUsuarioAndData(codigoUsuario, dataMovimento);
     }

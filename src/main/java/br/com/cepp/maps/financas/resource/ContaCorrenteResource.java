@@ -16,22 +16,21 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Log4j2
@@ -54,10 +53,6 @@ public class ContaCorrenteResource {
 
     @PostMapping(path = "/credito", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Lançamento de Crédito", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -66,8 +61,9 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> credito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO,
-                                          @RequestHeader(name = HEADER_CODIGO_USUARIO) @NotEmpty(message = "Header 'codigoUsuario' é obrigatório") String codigoUsuario) {
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<String> credito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO) {
+        final String codigoUsuario = SecurityContextHolder.getContext().getAuthentication().getName();
         this.lancamentoService.incluirCredito(lancamentoRequestDTO, codigoUsuario);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
@@ -86,8 +82,9 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
-    public ResponseEntity<String> debito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO,
-                                         @RequestHeader(name = HEADER_CODIGO_USUARIO) @NotEmpty(message = "Header 'codigoUsuario' é obrigatório") String codigoUsuario) {
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<String> debito(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final LancamentoRequestDTO lancamentoRequestDTO) {
+        final String codigoUsuario = SecurityContextHolder.getContext().getAuthentication().getName();
         this.lancamentoService.incluirDebito(lancamentoRequestDTO, codigoUsuario);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
@@ -106,8 +103,10 @@ public class ContaCorrenteResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<SaldoResponseDTO> consulta(@NotNull(message = "Campo 'data' é obrigatorio") @RequestParam(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
-        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(CODIGO_USUARIO_GLOBAL, data);
+        final String codigoUsuario = SecurityContextHolder.getContext().getAuthentication().getName();
+        ContaCorrente contaCorrente = this.contaCorrenteService.buscarContaCorrentePorCodigoUsuario(codigoUsuario, data);
         final SaldoResponseDTO saldoResponseDTO = new SaldoResponseDTO(contaCorrente.getSaldoConta());
         return ResponseEntity.ok(saldoResponseDTO);
     }

@@ -1,10 +1,8 @@
 package br.com.cepp.maps.financas.model;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -22,7 +20,6 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
 @Entity
@@ -32,15 +29,22 @@ public class ContaCorrente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Digits(integer = 15, fraction = 0, message = "Campo 'saldoConta' inválido")
+    private final Long id;
+    @Digits(integer = 15, fraction = 2, message = "Campo 'saldoConta' inválido")
     @Min(value = 0, message = "Campo 'saldoConta' inválido")
     @NotNull(message = "Campo 'saldoConta' é obrigatório")
-    private BigDecimal saldoConta;
+    private final BigDecimal saldoConta;
     @NotEmpty(message = "Campo 'usuario' é obrigatório")
-    private String codigoUsuario;
+    private final String codigoUsuario;
     @NotNull(message = "Campo 'data' é obrigatório")
-    private LocalDate data;
+    private final LocalDate data;
+
+    private ContaCorrente() {
+        this.id = null;
+        this.saldoConta = null;
+        this.codigoUsuario = null;
+        this.data = null;
+    }
 
     public ContaCorrente comSaldoAtualizado(BigDecimal saldoAtualizado) {
         return new ContaCorrente(this.id, saldoAtualizado, this.codigoUsuario, this.data);

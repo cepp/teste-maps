@@ -1,10 +1,8 @@
 package br.com.cepp.maps.financas.model;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -24,7 +22,6 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(exclude = {"movimentos"})
 @ToString(exclude = {"movimentos"})
 @Entity
@@ -34,16 +31,23 @@ public class AtivoValor implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final Long id;
     @NotNull(message = "Campo 'data' é obrigatório")
-    private LocalDate data;
+    private final LocalDate data;
     @Digits(integer = 8, fraction = 8, message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
-    private BigDecimal valor;
+    private final BigDecimal valor;
     @NotNull(message = "Campo 'ativo' é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Ativo ativo;
+    private final Ativo ativo;
     @OneToMany(mappedBy = "ativoValor", fetch = FetchType.LAZY)
-    private List<Movimento> movimentos;
+    private final List<Movimento> movimentos;
 
+    private AtivoValor() {
+        this.id = null;
+        this.data = null;
+        this.valor = null;
+        this.ativo = null;
+        this.movimentos = null;
+    }
 }

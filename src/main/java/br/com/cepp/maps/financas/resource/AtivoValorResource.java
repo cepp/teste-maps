@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,10 +46,6 @@ public class AtivoValorResource {
 
     @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Incluir Valor Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -58,6 +55,7 @@ public class AtivoValorResource {
             @ApiResponse(code = 409, message = "Recurso já existe"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> incluir(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final AtivoValorRequestDTO ativoValorRequestDTO) {
         this.service.incluir(ativoValorRequestDTO);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
@@ -77,6 +75,7 @@ public class AtivoValorResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> remover(@NotEmpty(message = "Campo 'codigoAtivo' é obrigatorio") @PathVariable(name = "codigoAtivo") final String codigoAtivo,
                                           @NotNull(message = "Campo 'data' é obrigatorio") @PathVariable(name = "data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate data) {
         this.service.remover(codigoAtivo, data);

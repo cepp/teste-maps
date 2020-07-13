@@ -28,7 +28,7 @@ public class AtivoValorService {
     private final AtivoService ativoService;
 
     @Autowired
-    public AtivoValorService(AtivoValorRepository repository, AtivoService ativoService) {
+    public AtivoValorService(final AtivoValorRepository repository, final AtivoService ativoService) {
         this.repository = repository;
         this.ativoService = ativoService;
     }
@@ -70,7 +70,7 @@ public class AtivoValorService {
     }
 
     @Transactional
-    public void salvar(List<AtivoValor> ativoValores) {
+    public void salvar(final List<AtivoValor> ativoValores) {
         this.repository.saveAll(ativoValores);
     }
 }

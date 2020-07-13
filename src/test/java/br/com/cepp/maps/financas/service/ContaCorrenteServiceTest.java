@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
@@ -119,36 +120,36 @@ class ContaCorrenteServiceTest extends AbstractDataTest {
         final LocalDate dataPrimeiroLancamento = LocalDate.now().plusDays(2);
         final ContaCorrente contaCorrente = assertDoesNotThrow(() -> this.service.incluirPosicaoContaCorrente(usuario, dataPrimeiroLancamento));
         assertNotNull(contaCorrente);
-        assertEquals(BigDecimal.ZERO, contaCorrente.getSaldoConta());
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.DOWN), contaCorrente.getSaldoConta());
 
         final ContaCorrente primeiraAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(usuario,
                 BigDecimal.TEN, TipoNatureza.CREDITO, dataPrimeiroLancamento));
         assertNotNull(primeiraAtualizacao);
-        assertEquals(BigDecimal.TEN, primeiraAtualizacao.getSaldoConta());
+        assertEquals(BigDecimal.TEN.setScale(2, RoundingMode.DOWN), primeiraAtualizacao.getSaldoConta());
 
         final ContaCorrente contaCorrenteBD = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPrimeiroLancamento));
         assertNotNull(contaCorrenteBD);
         assertEquals(primeiraAtualizacao, contaCorrenteBD);
-        assertEquals(BigDecimal.TEN, contaCorrenteBD.getSaldoConta());
+        assertEquals(BigDecimal.TEN.setScale(2, RoundingMode.DOWN), contaCorrenteBD.getSaldoConta());
 
         final LocalDate dataSegunadoLancamento = dataPrimeiroLancamento.plusDays(2);
         final ContaCorrente segundaAtualizacao = assertDoesNotThrow(() -> this.service.atualizarSaldo(usuario, BigDecimal.TEN,
                 TipoNatureza.CREDITO, dataSegunadoLancamento));
         assertNotNull(segundaAtualizacao);
-        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN), segundaAtualizacao.getSaldoConta());
+        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN).setScale(2, RoundingMode.DOWN), segundaAtualizacao.getSaldoConta());
 
         final LocalDate dataPosicaoAtual = LocalDate.now();
         final ContaCorrente posicaoAtual = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPosicaoAtual));
         assertNotNull(posicaoAtual);
-        assertEquals(BigDecimal.ZERO, posicaoAtual.getSaldoConta());
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.DOWN), posicaoAtual.getSaldoConta());
 
         final ContaCorrente posicaoPrimeiroLancamento = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataPrimeiroLancamento));
         assertNotNull(posicaoPrimeiroLancamento);
-        assertEquals(BigDecimal.TEN, posicaoPrimeiroLancamento.getSaldoConta());
+        assertEquals(BigDecimal.TEN.setScale(2, RoundingMode.DOWN), posicaoPrimeiroLancamento.getSaldoConta());
 
         final ContaCorrente posicaoSegundoLancamento = assertDoesNotThrow(() -> this.service.buscarContaCorrentePorCodigoUsuario(usuario, dataSegunadoLancamento));
         assertNotNull(posicaoSegundoLancamento);
-        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN), posicaoSegundoLancamento.getSaldoConta());
+        assertEquals(BigDecimal.TEN.add(BigDecimal.TEN).setScale(2, RoundingMode.DOWN), posicaoSegundoLancamento.getSaldoConta());
     }
 
     @Test

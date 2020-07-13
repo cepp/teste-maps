@@ -13,6 +13,7 @@ import br.com.cepp.maps.financas.resource.dto.MovimentoResponseDTO;
 import br.com.cepp.maps.financas.resource.handler.AtivoPeriodoInvalidoException;
 import br.com.cepp.maps.financas.resource.handler.MovimentoFinalSemanaException;
 import br.com.cepp.maps.financas.resource.handler.MovimentoNaoEcontradoException;
+import br.com.cepp.maps.financas.resource.handler.MovimentoValorDiferenteException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,8 +40,8 @@ public class MovimentoService {
     private final AtivoValorService ativoValorService;
 
     @Autowired
-    public MovimentoService(MovimentoRepository repository, EstoqueService estoqueService,
-                            ContaCorrenteService contaCorrenteService, AtivoValorService ativoValorService) {
+    public MovimentoService(final MovimentoRepository repository, final EstoqueService estoqueService,
+                            final ContaCorrenteService contaCorrenteService, final AtivoValorService ativoValorService) {
         this.repository = repository;
         this.estoqueService = estoqueService;
         this.contaCorrenteService = contaCorrenteService;
@@ -48,20 +49,20 @@ public class MovimentoService {
     }
 
     @Transactional
-    public void compra(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
-                       @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
+    public void compra(@Valid @NotNull(message = "Objeto request é obrigatório") final MovimentoRequestDTO requestDTO,
+                       @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario) {
         this.incluirMovimentacao(requestDTO, TipoMovimento.COMPRA, codigoUsuario);
     }
 
     @Transactional
-    public void venda(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
-                      @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
+    public void venda(@Valid @NotNull(message = "Objeto request é obrigatório") final MovimentoRequestDTO requestDTO,
+                      @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario) {
         this.incluirMovimentacao(requestDTO, TipoMovimento.VENDA, codigoUsuario);
     }
 
-    private void incluirMovimentacao(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
-                                     @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento,
-                                     @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") String codigoUsuario) {
+    private void incluirMovimentacao(@Valid @NotNull(message = "Objeto request é obrigatório") final MovimentoRequestDTO requestDTO,
+                                     @NotNull(message = "Campo 'tipoMovimento' é obrigatório") final TipoMovimento tipoMovimento,
+                                     @NotEmpty(message = "Campo 'codigoUsuario' é obrigatório") final String codigoUsuario) {
         final Movimento movimento = this.converterDTOParaEntidade(requestDTO, tipoMovimento);
         final Movimento movimentoPersistido = this.repository.save(movimento);
         this.estoqueService.atualizaEstoque(movimentoPersistido);
@@ -69,17 +70,17 @@ public class MovimentoService {
         this.contaCorrenteService.atualizarSaldoMovimento(codigoUsuario, movimentoPersistido.getValor(), tipoNatureza, movimento.getDataMovimento());
     }
 
-    private Movimento converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
-                                               @NotNull(message = "Campo 'tipoMovimento' é obrigatório") TipoMovimento tipoMovimento) {
+    private Movimento converterDTOParaEntidade(@Valid @NotNull(message = "Objeto request é obrigatório") final MovimentoRequestDTO requestDTO,
+                                               @NotNull(message = "Campo 'tipoMovimento' é obrigatório") final TipoMovimento tipoMovimento) {
         final AtivoValor ativoValor = this.ativoValorService.buscarPorAtivoEData(requestDTO.getAtivo(), requestDTO.getData());
         this.validarDataMovimento(requestDTO, ativoValor.getAtivo());
         final BigDecimal valor = this.calcularValorMovimento(requestDTO, ativoValor);
         return new Movimento(null, ativoValor, requestDTO.getData(), requestDTO.getQuantidade(), valor, tipoMovimento);
     }
 
-    public Page<MovimentoResponseDTO> buscarPosicaoPorPeriodo(@NotNull(message = "Campo 'dataInicio' é obrigatório") LocalDate dataInicio,
-                                                              @NotNull(message = "Campo 'dataFim' é obrigatório") LocalDate dataFim,
-                                                              @NotNull(message = "Paginação é obrigatória") Pageable pageable) {
+    public Page<MovimentoResponseDTO> buscarPosicaoPorPeriodo(@NotNull(message = "Campo 'dataInicio' é obrigatório") final LocalDate dataInicio,
+                                                              @NotNull(message = "Campo 'dataFim' é obrigatório") final LocalDate dataFim,
+                                                              @NotNull(message = "Paginação é obrigatória") final Pageable pageable) {
         Page<Movimento> movimentos = this.repository.findByDataMovimentoBetweenOrderByDataMovimentoDesc(dataInicio, dataFim, pageable)
                 .orElseThrow(() -> new MovimentoNaoEcontradoException(dataInicio, dataFim));
 
@@ -97,23 +98,27 @@ public class MovimentoService {
     }
 
     private BigDecimal calcularLucro(AtivoValor ativo) {
-        final BigDecimal totalVenda = this.repository.somaValorPorAtivoTipoMovimento(ativo.getAtivo().getCodigo(), TipoMovimento.VENDA).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.DOWN);
-        final BigDecimal totalCompra = this.repository.somaValorPorAtivoTipoMovimento(ativo.getAtivo().getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.DOWN);
-        return totalVenda.subtract(totalCompra).setScale(0, RoundingMode.DOWN);
+        final BigDecimal totalVenda = this.repository.somaValorPorAtivoTipoMovimento(ativo.getAtivo().getCodigo(), TipoMovimento.VENDA).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.DOWN);
+        final BigDecimal totalCompra = this.repository.somaValorPorAtivoTipoMovimento(ativo.getAtivo().getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.DOWN);
+        return totalVenda.subtract(totalCompra).setScale(2, RoundingMode.DOWN);
     }
 
     private BigDecimal calcularRendimento(AtivoValor ativoValor) {
         final BigDecimal totalPrecoCompra = this.repository.somaPrecoPorAtivoTipoMovimento(ativoValor.getAtivo().getCodigo(), TipoMovimento.COMPRA).orElse(BigDecimal.ZERO);
         Long quantidadeCompras = this.repository.countByAtivoValor_AtivoAndTipoMovimento(ativoValor.getAtivo(), TipoMovimento.COMPRA);
-        final BigDecimal mediaPrecoCompra = quantidadeCompras == 0L ? BigDecimal.ZERO : totalPrecoCompra.divide(BigDecimal.valueOf(quantidadeCompras),0, RoundingMode.DOWN);
-        final BigDecimal rendimento = quantidadeCompras == 0L ? BigDecimal.ZERO : ativoValor.getValor().divide(mediaPrecoCompra, 0, RoundingMode.DOWN);
+        final BigDecimal mediaPrecoCompra = quantidadeCompras == 0L ? BigDecimal.ZERO : totalPrecoCompra.divide(BigDecimal.valueOf(quantidadeCompras),2, RoundingMode.DOWN);
+        final BigDecimal rendimento = quantidadeCompras == 0L ? BigDecimal.ZERO : ativoValor.getValor().divide(mediaPrecoCompra, 2, RoundingMode.DOWN);
         log.debug("{}: {}", ativoValor.getAtivo().getCodigo(), rendimento);
         return rendimento;
     }
 
     private BigDecimal calcularValorMovimento(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,
                                               @Valid @NotNull(message = "Ativo Valor é obrigatório") final AtivoValor ativoValor) {
-        return ativoValor.getValor().multiply(requestDTO.getQuantidade()).setScale(0, RoundingMode.DOWN);
+        final BigDecimal valorCalculado = ativoValor.getValor().setScale(2, RoundingMode.DOWN).multiply(requestDTO.getQuantidade()).setScale(2, RoundingMode.DOWN);
+        if(valorCalculado.compareTo(requestDTO.getValor()) != 0) {
+            throw new MovimentoValorDiferenteException(requestDTO.getValor());
+        }
+        return valorCalculado;
     }
 
     private void validarDataMovimento(@Valid @NotNull(message = "Objeto request é obrigatório") MovimentoRequestDTO requestDTO,

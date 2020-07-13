@@ -1,11 +1,9 @@
 package br.com.cepp.maps.financas.model;
 
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -23,7 +21,6 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(exclude = {"posicoes"})
 @ToString(exclude = {"posicoes"})
 @Entity
@@ -33,18 +30,27 @@ public class Ativo implements Serializable {
 
     @Id
     @NotEmpty(message = "Campo 'codigo' é obrigatório")
-    private String codigo;
+    private final String codigo;
     @NotEmpty(message = "Campo 'nome' é obrigatório")
-    private String nome;
+    private final String nome;
     @NotNull(message = "Campo 'tipoAtivo' é obrigatório")
     @Enumerated(EnumType.STRING)
-    private TipoAtivo tipoAtivo;
+    private final TipoAtivo tipoAtivo;
     @NotNull(message = "Campo 'dataEmissao' é obrigatório")
-    private LocalDate dataEmissao;
+    private final LocalDate dataEmissao;
     @NotNull(message = "Campo 'dataVencimento' é obrigatório")
-    private LocalDate dataVencimento;
+    private final LocalDate dataVencimento;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ativo")
-    private List<AtivoValor> posicoes;
+    private final List<AtivoValor> posicoes;
+
+    private Ativo() {
+        this.codigo = null;
+        this.nome = null;
+        this.tipoAtivo = null;
+        this.dataEmissao = null;
+        this.dataVencimento = null;
+        this.posicoes = null;
+    }
 
     public Ativo comNome(final String nome) {
         return new Ativo(this.codigo, nome, this.tipoAtivo, this.dataEmissao, this.dataVencimento, this.posicoes);

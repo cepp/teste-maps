@@ -11,12 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.UUID;
 
 import static br.com.cepp.maps.financas.config.AplicacaoConfig.CODIGO_USUARIO_GLOBAL;
+import static br.com.cepp.maps.financas.config.MockMvcConfig.UTF_8;
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.HEADER_CODIGO_USUARIO;
 import static br.com.cepp.maps.financas.resource.MovimentacaoResourceTest.END_POINT_VENDA;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -35,6 +39,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     private AtivoService ativoService;
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluir() {
         final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
         final Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(ativoRequestDTO));
@@ -55,6 +60,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluirAtivoNaoExiste() {
         final AtivoValorRequestTestDTO ativoRequestTestDTO = super.getAtivoValorRequestTestDTOMock();
 
@@ -69,6 +75,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void incluirAtivoValorJaExiste() {
         final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
         final Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(ativoRequestDTO));
@@ -97,6 +104,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void remover() {
         final AtivoRequestDTO ativoRequestDTO = super.getAtivoRequestDTO();
         final Ativo ativo = assertDoesNotThrow(() -> this.ativoService.incluir(ativoRequestDTO));
@@ -128,6 +136,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN"})
     void removerAtivoValorNaoExiste() {
         final AtivoValorRequestTestDTO ativoRequestTestDTO = super.getAtivoValorRequestTestDTOMock();
 
@@ -143,6 +152,7 @@ class AtivoValorResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    @WithMockUser(authorities={"ROLE_ADMIN", "ROLE_USER"})
     void removerAtivoValorUtilizado() {
         final LocalDate dataEmissao = super.getDataDiaUtil();
         final LocalDate dataVencimento = dataEmissao.plusDays(5);
@@ -152,10 +162,10 @@ class AtivoValorResourceTest extends AbstractResourceTest {
         assertFalse(Strings.isEmpty(ativo.getCodigo()));
 
         final LocalDate dataPosicao = super.getDataDiaUtil();
-        final AtivoValorRequestTestDTO ativoRequestTestDTO = super.getAtivoValorRequestTestDTOMock(ativo.getCodigo(), dataPosicao);
+        final AtivoValorRequestTestDTO ativoRequestTestDTO = super.getAtivoValorRequestTestDTOMock(ativo.getCodigo(),
+                dataPosicao);
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(URI_V1)
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ativoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))
@@ -164,12 +174,11 @@ class AtivoValorResourceTest extends AbstractResourceTest {
                 .andExpect(content().string(ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO))
                 .andReturn());
 
+        final double valor = Double.parseDouble(ativoRequestTestDTO.getValor());
         final MovimentoRequestTestDTO movimentoRequestTestDTO = super.getMovimentoRequestTestDTOMock(ativo.getCodigo(),
-                dataPosicao);
+                dataPosicao, BigDecimal.valueOf(valor).setScale(2, RoundingMode.DOWN));
 
         assertDoesNotThrow(() -> super.getMockMvc().perform(post(MovimentacaoResourceTest.URI_V1.concat(END_POINT_VENDA))
-                .header(HttpHeaders.AUTHORIZATION, UUID.randomUUID().toString())
-                .header(HEADER_CODIGO_USUARIO, CODIGO_USUARIO_GLOBAL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movimentoRequestTestDTO.toJson())
                 .characterEncoding(UTF_8))

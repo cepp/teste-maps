@@ -4,8 +4,6 @@ import br.com.cepp.maps.financas.model.Ativo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.service.AtivoService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -13,6 +11,7 @@ import io.swagger.annotations.Authorization;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import static br.com.cepp.maps.financas.resource.ContaCorrenteResource.MSG_OPERACAO_REALIZADA_COM_SUCESSO;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -46,10 +46,6 @@ public class AtivoResource {
 
     @PostMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Incluir Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -59,6 +55,7 @@ public class AtivoResource {
             @ApiResponse(code = 409, message = "Recurso já existe"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> incluir(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final AtivoRequestDTO ativoRequestDTO) {
         this.service.incluir(ativoRequestDTO);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
@@ -66,10 +63,6 @@ public class AtivoResource {
 
     @PutMapping(path = "/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Alterar Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -78,18 +71,15 @@ public class AtivoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> alterar(@Valid @NotNull(message = "Objeto do request não encontrado") @RequestBody final AtivoRequestDTO ativoRequestDTO,
-                                          @PathVariable(name = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatorio") String codigo) {
+                                          @PathVariable(name = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatorio") @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Campo 'codigo' inválido") String codigo) {
         this.service.alterar(ativoRequestDTO, codigo);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
     }
 
     @DeleteMapping(path = "/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Remover Ativo", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -98,6 +88,7 @@ public class AtivoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> remover(@PathVariable(name = "codigo") @NotEmpty(message = "Campo 'codigo' é obrigatorio") String codigo) {
         this.service.remover(codigo);
         return ResponseEntity.ok(MSG_OPERACAO_REALIZADA_COM_SUCESSO);
@@ -105,10 +96,6 @@ public class AtivoResource {
 
     @GetMapping(path="/{codigo}", produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Consulta Saldo da Conta", authorizations = {@Authorization(value = AUTHORIZATION)})
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = AUTHORIZATION, value = "Token autorização", required = true,
-                    paramType = "header", dataTypeClass = String.class)
-    })
     @ApiResponses({
             @ApiResponse(code = 200, message = MSG_OPERACAO_REALIZADA_COM_SUCESSO),
             @ApiResponse(code = 204, message = "Registro não encontrado"),
@@ -117,6 +104,7 @@ public class AtivoResource {
             @ApiResponse(code = 404, message = "Não encontrado"),
             @ApiResponse(code = 500, message = "Erro interno")
     })
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<AtivoRequestDTO> consultaPorCodigo(@Valid @NotEmpty(message = "Objeto do request não encontrado") @PathVariable(name = "codigo") final String codigo) {
         final Ativo ativo = this.service.buscarPorCodigo(codigo);
         final AtivoRequestDTO requestDTO = new AtivoRequestDTO(ativo.getCodigo(), ativo.getNome(), ativo.getTipoAtivo(),

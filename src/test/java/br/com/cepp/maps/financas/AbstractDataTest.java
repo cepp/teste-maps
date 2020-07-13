@@ -1,5 +1,6 @@
 package br.com.cepp.maps.financas;
 
+import br.com.cepp.maps.financas.model.AtivoValor;
 import br.com.cepp.maps.financas.model.dominio.TipoAtivo;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestDTO;
 import br.com.cepp.maps.financas.resource.dto.AtivoRequestTestDTO;
@@ -97,14 +98,26 @@ public abstract class AbstractDataTest {
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data) {
-        return this.getMovimentoRequestTestDTOMock(ativo, data, 999999);
+        return this.getMovimentoRequestTestDTOMock(ativo, data, 9999);
     }
 
     protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data, Integer quantidadeMax) {
+        BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, quantidadeMax)).setScale(2, RoundingMode.HALF_DOWN);
+        return this.getMovimentoRequestTestDTOMock(ativo, data, quantidadeMax, valor);
+    }
+
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data, BigDecimal valor) {
+        return this.getMovimentoRequestTestDTOMock(ativo, data, 9999, valor);
+    }
+
+    protected MovimentoRequestTestDTO getMovimentoRequestTestDTOMock(String ativo, LocalDate data, Integer quantidadeMax,
+                                                                     BigDecimal preco) {
         MovimentoRequestTestDTO movimentoRequestTestDTO = new MovimentoRequestTestDTO();
         movimentoRequestTestDTO.setAtivo(ativo);
         BigDecimal quantidade = BigDecimal.valueOf(RandomUtils.nextDouble(1, quantidadeMax)).setScale(2, RoundingMode.HALF_DOWN);
         movimentoRequestTestDTO.setQuantidade(String.valueOf(quantidade.doubleValue()));
+        BigDecimal valorCalculado = preco.multiply(quantidade).setScale(2, RoundingMode.DOWN);
+        movimentoRequestTestDTO.setValor(String.valueOf(valorCalculado.doubleValue()));
         movimentoRequestTestDTO.setData(data.format(DateTimeFormatter.ISO_DATE));
         return movimentoRequestTestDTO;
     }
@@ -146,15 +159,15 @@ public abstract class AbstractDataTest {
 
 
     protected AtivoValorRequestDTO getAtivoValorRequestDTO(String codigo, final LocalDate data) {
-        final BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999999)).setScale(8, RoundingMode.DOWN);
+        final BigDecimal valor = BigDecimal.valueOf(RandomUtils.nextDouble(1, 999)).setScale(8, RoundingMode.DOWN);
         return new AtivoValorRequestDTO(codigo, data, valor);
     }
 
-    protected void iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data) {
-        this.iniciarAtivoValor(codigo, tipoAtivo, data, this.getDataDiaUtil(), this.getDataDiaUtil().plusDays(4));
+    protected AtivoValor iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data) {
+        return this.iniciarAtivoValor(codigo, tipoAtivo, data, this.getDataDiaUtil(), this.getDataDiaUtil().plusDays(4));
     }
 
-    protected void iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data,
+    protected AtivoValor iniciarAtivoValor(final String codigo, final TipoAtivo tipoAtivo, final LocalDate data,
                                      final LocalDate dataEmissao, final LocalDate dataVencimento) {
         if(!this.ativoService.existsAtivoPorCodigo(codigo)) {
             final AtivoRequestDTO ativo = this.getAtivoRequestDTO(codigo, tipoAtivo, dataEmissao, dataVencimento);
@@ -163,7 +176,9 @@ public abstract class AbstractDataTest {
 
         if(!this.ativoValorService.existsPorAtivoEData(codigo, data)) {
             final AtivoValorRequestDTO ativoValorRequestDTO = this.getAtivoValorRequestDTO(codigo, data);
-            this.ativoValorService.incluir(ativoValorRequestDTO);
+            return this.ativoValorService.incluir(ativoValorRequestDTO);
         }
+
+        return this.ativoValorService.buscarPorAtivoEData(codigo, data);
     }
 }

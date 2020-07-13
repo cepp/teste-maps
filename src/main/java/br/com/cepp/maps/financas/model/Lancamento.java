@@ -1,11 +1,9 @@
 package br.com.cepp.maps.financas.model;
 
 import br.com.cepp.maps.financas.model.dominio.TipoNatureza;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Immutable;
 
@@ -25,7 +23,6 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @ToString
 @Entity
@@ -35,19 +32,27 @@ public class Lancamento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final Long id;
     @Digits(integer = 15, fraction = 2, message = "Campo 'valor' inválido")
     @DecimalMin(value = "0.01", message = "Campo 'valor' inválido")
     @NotNull(message = "Campo 'valor' é obrigatório")
-    private BigDecimal valor;
+    private final BigDecimal valor;
     @NotNull(message = "Campo 'dataMovimento' é obrigatório")
-    private LocalDate dataMovimento;
+    private final LocalDate dataMovimento;
     @NotEmpty(message = "Campo 'descricao' é obrigatório")
-    private String descricao;
+    private final String descricao;
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Campo 'natureza'é obrigatório")
-    private TipoNatureza natureza;
+    private final TipoNatureza natureza;
     @NotNull(message = "Campo 'contaCorrente' é obrigatório")
-    private Long codigoContaCorrente;
+    private final Long codigoContaCorrente;
 
+    private Lancamento() {
+        this.id = null;
+        this.valor = null;
+        this.dataMovimento = null;
+        this.descricao = null;
+        this.natureza = null;
+        this.codigoContaCorrente = null;
+    }
 }
