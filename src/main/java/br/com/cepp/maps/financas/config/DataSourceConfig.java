@@ -2,6 +2,7 @@ package br.com.cepp.maps.financas.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -28,13 +29,17 @@ public class DataSourceConfig {
 
     @Bean
     @Profile(value = {"default"})
-    public DataSource jndiDataSource(@Value("${spring.datasource.url}") String url,
-                                     @Value("${spring.datasource.username}") String username,
-                                     @Value("${spring.datasource.password}") String password) {
+    public DataSource jndiDataSource(@Value("${spring.datasource.username}") String username,
+                                     @Value("${spring.datasource.password}") String password,
+                                     @Value("${spring.datasource.url}") String url) {
+        final String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        final String dbUsername = System.getenv("JDBC_DATABASE_USERNAME");
+        final String dbPassword = System.getenv("JDBC_DATABASE_PASSWORD");
+
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        config.setJdbcUrl(Strings.isEmpty(dbUrl) ? url : dbUrl);
+        config.setUsername(Strings.isEmpty(dbUsername) ? username : dbUsername);
+        config.setPassword(Strings.isEmpty(dbPassword) ? password : dbPassword);
         return new HikariDataSource(config);
     }
 }
