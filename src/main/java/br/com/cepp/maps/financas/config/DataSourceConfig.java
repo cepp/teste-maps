@@ -30,6 +30,8 @@ public class DataSourceConfig {
     public DataSource getDataSource(@Value("${spring.datasource.driverClassName}") String driverClassName) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(System.getenv("JDBC_DATABASE_URL"));
+        config.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
+        config.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
         config.setDriverClassName(driverClassName);
         config.addDataSourceProperty("spring.datasource.initializationMode", "always");
         return new HikariDataSource(config);
