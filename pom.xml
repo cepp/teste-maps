@@ -183,12 +183,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <skip>${skip.it.test}</skip>
                     <jmxPort>9997</jmxPort>
                     <executable>true</executable>
                     <fork>true</fork>
                     <addResources>true</addResources>
                     <wait>10000</wait>
+                    <mainClass>br.com.cepp.maps.financas.FinancasApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -196,11 +196,23 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
+                        <configuration>
+                            <skip>${skip.it.test}</skip>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>post-integration-test</id>
                         <goals>
                             <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.it.test}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
